@@ -1,0 +1,194 @@
+
+.ct-button {
+}
+.ct-button-wrap {
+	display: inline-block!important;
+}
+.ct-qrcode-wrap {
+	display: inline-block;
+	margin: 0px 0px 0px 0px;
+}
+.ct-qrcode-wrap img {
+	margin: 0px 0px 0px 0px;
+}
+
+.ct-button-text {
+	font-weight: bold;
+}
+
+.money-button-iframe-wrapper {
+}
+
+.ct-faucet-bch {
+	margin-top: 3em;
+}
+.ct-input-amount {
+	max-width: 10em;
+}
+
+body div#page div#content .ct-hidden-text {
+	/* use a more specific css selector to ensure it has higher priority */
+	display: none;
+}
+
+.ct-hidden-text {
+	/* fallback in case some WP style is heavily modified, !important is ugly */
+	display: none;
+}
+
+
+/* Progress bar */
+.ct-progress-bar {
+	background-color: #1a1a1a;
+	height: 30px;
+	padding: 5px;
+	width: 500px;
+	margin: 5px 0;
+	border-radius: 5px;
+	box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;
+}
+.ct-progress-bar-progress {
+	/*max-width: 390px;*/
+}
+.ct-progress-bar span {
+	display: inline-block;
+	float: left;
+	height: 100%;
+	border-radius: 3px;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
+	transition: width .4s ease-in-out;
+}
+.ct-green span {
+	background-color: #45d04c;
+}
+.ct-orange span {
+	background-color: #edca4d;
+}
+.ct-yellow span {
+	background-color: #eff51b;
+}
+.ct-red span {
+	background-color: #f43e23;
+}
+.ct-progress-text {
+	text-align: right;
+	color: white;
+	/*margin: -25px 0px;*/
+	margin: -25px 0px 0px 200px;
+	position: absolute;
+}
+.ct-progress-text-before {
+	font-weight: bold;
+}
+
+
+/* Cookie Confirm Message */
+
+#ct-cookieMsg {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  min-height: 80px;
+  border-radius: 25px;
+  z-index: 100;
+  padding: 20px 35px 5px 35px;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0, 0.8);
+  color: white;
+  font-size: 20px;
+}
+#ct-cookieMsg a:link, #ct-cookieMsg a:visited {
+	color: white;
+}
+#ct-cookieMsg a:hover, #ct-cookieMsg a:active {
+    color: #f3f3f3;
+}
+#ct-confirmCookies {
+  margin-left: 10px;
+  margin-right: 10px;
+  
+  /* from wp-core-ui class */
+  background: #0085ba;
+  border-color: #0073aa #006799 #006799;
+  box-shadow: 0 1px 0 #006799;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+}
+
+.ct-textfield-group input {
+	display: inline-block;
+}
+.ct-textfield-group input[type="text"] {
+	width: 380px;
+}
+
+/* disable page */
+#ct-modal-qrcode-dialog-tpl {
+	display: none;
+}
+#ct-modal-background {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #000;
+  opacity: 0.5;
+  z-index: 20004;
+}
+.ct-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 600px;
+  min-height: 600px;
+  background-color: #fff;
+  display: block;
+  z-index: 20005;
+}
+.ct-modal-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 20px 50px 20px 20px;
+  overflow: auto;
+}
+.ct-dialog-head {
+	max-width: 80%;
+	display: inline;
+}
+.ct-close-dialog {
+	float: right;
+}
+
+@media print {
+  .hidden-print {
+    display: none !important;
+  } 
+}
+
+
+/* Blurry Image Addon */
+.ct-image-blurry {
+	display: inline;
+}
+
+/* Shout Addon */
+.ct-recent-shouts-head {
+	font-weight: bold;
+}
+.ct-shouts {
+    border-radius: 25px;
+    border: 2px solid #767676;
+    padding: 15px 15px 15px 15px;
+    margin-bottom: 20px;
+}
+.ct-shout-time {
+	font-style: italic;
+}
