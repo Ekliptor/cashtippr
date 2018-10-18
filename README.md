@@ -16,5 +16,11 @@ Just upload the whole zip file into your WordPress instance.
 If you are not a developer, this plugin is also available in the [WordPress plugin installer](https://wordpress.org/plugins/cashtippr-bitcoin-cash-moneybutton-payments/).
 
 
+## ToDos
+* implement [MoneyButton webhooks](https://github.com/moneybutton/paywall-example) using [WP REST API](https://developer.wordpress.org/rest-api/)
+* crawl crypto-fiat exchange rates and implement QR code tipping for currencies other than USD
+* add generation of 1-time BCH addresses using xPub to add QR codes for paywalls too (in PHP only, so we need an API server supporting this)
+
+
 ## Contact
 Follow me on [Twitter](https://twitter.com/ekliptor) and [Memo](https://memo.cash/profile/1JFKA1CabVyX98qPRAUQBL9NhoTnXZr5Zm).
