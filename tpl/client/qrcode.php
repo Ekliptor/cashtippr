@@ -34,7 +34,7 @@ if (!defined('ABSPATH'))
 	      </p>
 	      <p>
 	        <img class="ct-loading" src="<?php echo esc_attr($btnConf['loadingImage'])?>" width="140" height="140" alt="<?php esc_attr_e('loading...', 'ekliptor');?>" title="<?php esc_attr_e('loading...', 'ekliptor');?>">
-	        <img class="ct-qr-code" src="" width="140" height="140" alt="<?php esc_attr_e('Tip with QR Code', 'ekliptor');?>" title"<?php esc_attr_e('Tip with QR Code', 'ekliptor');?>" style="display: none;">
+	        <img class="ct-qr-code" src="" width="160" height="160" alt="<?php esc_attr_e('Tip with QR Code', 'ekliptor');?>" title"<?php esc_attr_e('Tip with QR Code', 'ekliptor');?>" style="display: none;">
 	      </p>
         </form>
       </div>

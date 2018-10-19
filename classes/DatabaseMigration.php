@@ -32,6 +32,18 @@ class DatabaseMigration {
 		return $this->runQueries($queries);
 	}
 	
+	/**
+	 * Fix function if migrate() didn't work on some instances
+	 */
+	public function ensureLatestVersion(): bool {
+		$table = \Cashtippr::getTableName('transactions');
+		if ($this->columnExists($table, 'amount') === false) {
+			$this->lastVersion = '1';
+			return $this->migrate();
+		}
+		return true;
+	}
+	
 	public function getLastError(): array {
 		return $this->lastError;
 	}
@@ -49,6 +61,12 @@ class DatabaseMigration {
 			}
 		}
 		return true;
+	}
+	
+	protected function columnExists(string $table, string $column) {
+		global $wpdb;
+		$rows = $wpdb->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+		return empty($rows) ? false : true;
 	}
 }
 ?>

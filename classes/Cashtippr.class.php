@@ -104,7 +104,14 @@ class Cashtippr {
 		add_action ( 'update_currency_rates', array (self::$instance, 'updateCurrencyRates' ) );
 		
 		if ($this->settings->get('rate_usd_bch') === 0.0)
-			$this->updateCurrencyRates();
+			add_action ( 'shutdown', array (self::$instance, 'updateCurrencyRates' ) );
+		
+		add_action( 'upgrader_process_complete', array (self::$instance, 'onUpgrade' ), 10, 2);
+		
+		// TODO remove or find better place for this. moving to plugins_loaded action still means we check on every run
+		$migrate = new DatabaseMigration(CASHTIPPR_VERSION, CASHTIPPR_VERSION);
+		if ($migrate->ensureLatestVersion() === false)
+			static::notifyErrorExt("Error ensuring latest DB version on migration", $migrate->getLastError());
 	}
 	
 	public static function plugin_activation() {
@@ -127,6 +134,22 @@ class Cashtippr {
 		if (in_array(static::getTableName('transactions'), $tables) === false)
 			$tables[] = static::getTableName('transactions');
 		update_option('cashtippr_tables', $tables);
+		
+		// ensure directories exist
+		$dataDirs = array(
+				CASHTIPPR__PLUGIN_DIR . 'data',
+				CASHTIPPR__PLUGIN_DIR . 'data/temp',
+				CASHTIPPR__PLUGIN_DIR . 'data/temp/qr'
+		);
+		foreach ($dataDirs as $dir) {
+			if (file_exists($dir) === true)
+				continue;
+			if (mkdir($dir) === false) { // TODO even though we don't create php files, using WP filesystem API would still be better
+				load_plugin_textdomain ( 'ekliptor' );
+				$message = '<strong>' . esc_html__ ( 'Error creating data folder.', 'ekliptor' ) . '</strong> ' . sprintf ( __ ( 'Please ensure that your WordPress installation has write permissions on the /plugins folder (0755) or create this folder manually with permissions 0755: %s', 'ekliptor' ), $dir );
+				static::bailOnActivation ( $message, false );
+			}
+		}
 		
 		foreach ( self::$cron_events as $cron_event ) {
 			$timestamp = wp_next_scheduled ( $cron_event );
@@ -309,7 +332,7 @@ class Cashtippr {
 		$rate = $this->settings->get('rate_usd_bch');
 		if ($rate === 0.0)
 			return 0.0;
-		return $amount / $rate;
+		return floor($amount / $rate * 100000000) / 100000000; // many wallets support only 8 decimals
 	}
 	
 	public function showTipprButton($attrs, $content = null, $tag = "") {
@@ -555,6 +578,7 @@ class Cashtippr {
 	}
 	
 	public function updateCurrencyRates() {
+		/*
 		$domain = parse_url(site_url('/'), PHP_URL_HOST);
 		// find alternative APIs: coinmarketcap.com requires API key now, markets.bitcoin.com doesnt have one?
 		$res = wp_remote_get('https://wolfbot.org/wp-json/tradebot/v1/getRate?base=USD&quote=BCH&domain=' . $domain);
@@ -569,6 +593,33 @@ class Cashtippr {
 		}
 		if ($json->data[0]->rate != 0.0)
 			$this->settings->set('rate_usd_bch', $json->data[0]->rate);
+		*/
+		$res = wp_remote_get('https://api.coinmarketcap.com/v2/ticker/1831/');
+		if (is_array($res) === false) {
+			static::notifyErrorExt('Error updating currency rates', $res);
+			return;
+		}
+		$json = json_decode($res['body']);
+		if ($json === null || empty($json->data) || empty($json->data->quotes) || empty($json->data->quotes->USD)) {
+			static::notifyErrorExt('Invalid response when updating currency rates', $res);
+			return;
+		}
+		if ($json->data->quotes->USD->price != 0.0)
+			$this->settings->set('rate_usd_bch', $json->data->quotes->USD->price);
+	}
+	
+	public function onUpgrade($upgrader_object, $options) {
+		// TODO remove? upgrader_process_complete is useless since it's run on the OLD not updated code of WP. just like the upgrader_post_install filter
+		$currentPlugin = plugin_basename( CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
+		if ($options['action'] === 'update' && $options['type'] === 'plugin' ) {
+			foreach($options['plugins'] as $plugin) {
+				if ($plugin !== $currentPlugin)
+					continue;
+				$migrate = new DatabaseMigration(CASHTIPPR_VERSION, CASHTIPPR_VERSION);
+				if ($migrate->ensureLatestVersion() === false)
+					static::notifyErrorExt("Error ensuring latest DB version on migration", $migrate->getLastError());
+			}
+		}
 	}
 	
 	public function notifyError($subject, $error, $data = null) {
