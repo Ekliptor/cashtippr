@@ -192,6 +192,9 @@ body div#page div#content .ct-hidden-text {
     display: none !important;
   } 
 }
+.hidden {
+	display: none!important;
+}
 
 
 /* Blurry Image Addon */

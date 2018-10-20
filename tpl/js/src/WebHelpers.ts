@@ -166,6 +166,11 @@ export class WebHelpers {
         this.window.console.log(arguments);
     }
 
+    public isAppleIOS() {
+        // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
+        return /iPad|iPhone|iPod/.test(this.window.navigator.userAgent) && !(this.window as any).MSStream;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

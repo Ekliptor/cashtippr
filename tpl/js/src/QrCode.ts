@@ -58,10 +58,12 @@ export class QrCode {
             }
             catch (err) { // try-catch shouldn't be needed except for some really old browsers
             }
-            inputEl.select(); // ensure it's selected again for iOS devices to copy it manually
+            inputEl.select(); // ensure it's selected again for iOS devices to copy it manually. not working, remove?
         });
         this.cashtippr.$("#ct-qrcode-form input[type='text']").click((event) => {
             this.cashtippr.$(event.target).select();
         });
+        if (this.webHelpers.isAppleIOS() === true) // copy to clipboard button doesn't work there
+            this.cashtippr.$("#ct-qrcode-form .ct-copy-field").addClass("hidden");
     }
 }
