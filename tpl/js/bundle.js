@@ -352,8 +352,15 @@ var QrCode = /** @class */ (function () {
             var inputEl = _this.cashtippr.$(event.target).parent().find("input[type='text']");
             //let text = inputEl.val();
             inputEl.select();
-            _this.cashtippr.window.document.execCommand("copy");
+            try {
+                _this.cashtippr.window.document.execCommand("copy");
+            }
+            catch (err) { // try-catch shouldn't be needed except for some really old browsers
+            }
             inputEl.select(); // ensure it's selected again for iOS devices to copy it manually
+        });
+        this.cashtippr.$("#ct-qrcode-form input[type='text']").click(function (event) {
+            _this.cashtippr.$(event.target).select();
         });
     };
     return QrCode;

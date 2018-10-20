@@ -53,8 +53,15 @@ export class QrCode {
             const inputEl = this.cashtippr.$(event.target).parent().find("input[type='text']");
             //let text = inputEl.val();
             inputEl.select();
-            this.cashtippr.window.document.execCommand("copy");
+            try {
+                this.cashtippr.window.document.execCommand("copy");
+            }
+            catch (err) { // try-catch shouldn't be needed except for some really old browsers
+            }
             inputEl.select(); // ensure it's selected again for iOS devices to copy it manually
+        });
+        this.cashtippr.$("#ct-qrcode-form input[type='text']").click((event) => {
+            this.cashtippr.$(event.target).select();
         });
     }
 }
