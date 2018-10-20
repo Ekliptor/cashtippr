@@ -16,6 +16,20 @@ class DatabaseMigration {
 		$this->currentVersion = $currentVersion;
 	}
 	
+	public static function checkAndMigrate() {
+		add_action('plugins_loaded', function() {
+			$lastVersion = get_option('cashtippr_version');
+			if ($lastVersion === CASHTIPPR_VERSION)
+				return;
+			$migrate = new DatabaseMigration($lastVersion, CASHTIPPR_VERSION);
+			if ($migrate->ensureLatestVersion() === false) { // TODO can be switched to migrate() call just like in plugin_activcation()
+				\Cashtippr::notifyErrorExt("Error ensuring latest DB version on migration", $migrate->getLastError());
+				return;
+			}
+			update_option ( 'cashtippr_version', CASHTIPPR_VERSION );
+		});
+	}
+	
 	public function migrate(): bool {
 		$queries = array();
 		switch ($this->lastVersion) {
@@ -33,7 +47,7 @@ class DatabaseMigration {
 	}
 	
 	/**
-	 * Fix function if migrate() didn't work on some instances
+	 * Fix function if migrate() didn't work on some instances previously.
 	 */
 	public function ensureLatestVersion(): bool {
 		$table = \Cashtippr::getTableName('transactions');

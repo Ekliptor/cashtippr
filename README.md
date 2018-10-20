@@ -11,9 +11,9 @@ It is written in PHP7 using the latest WordPress APIs and hooks.
 
 
 ## Installation
-Just upload the whole zip file into your WordPress instance.
+Just upload all sources as a zip file into your WordPress instance.
 
-If you are not a developer, this plugin is also available in the [WordPress plugin installer](https://wordpress.org/plugins/cashtippr-bitcoin-cash-moneybutton-payments/).
+This plugin is also available in the [WordPress plugin installer](https://wordpress.org/plugins/cashtippr-bitcoin-cash-moneybutton-payments/).
 
 
 ## ToDos

@@ -3,12 +3,14 @@
  * Plugin Name: CashTippr: Bitcoin Cash MoneyButton payments
  * Plugin URI: https://cashtippr.com/
  * Description: Earn money for your content using instant Bitcoin Cash tips (0 conf) with MoneyButton.
- * Version: 1.0.32
+ * Version: 1.0.33
  * Author: Ekliptor
  * Author URI: https://twitter.com/ekliptor
  * License: GPLv3
  * Text Domain: ekliptor
  */
+
+use Ekliptor\Cashtippr\DatabaseMigration;
 
 // Make sure we don't expose any info if called directly
 if (! defined( 'ABSPATH' )) {
@@ -16,7 +18,7 @@ if (! defined( 'ABSPATH' )) {
 	exit ();
 }
 
-define ( 'CASHTIPPR_VERSION', '1.0.32' );
+define ( 'CASHTIPPR_VERSION', '1.0.33' );
 define ( 'CASHTIPPR__MINIMUM_WP_VERSION', '4.7' );
 define ( 'CASHTIPPR__PLUGIN_DIR', plugin_dir_path ( __FILE__ ) );
 
@@ -43,6 +45,8 @@ require_once (CASHTIPPR__PLUGIN_DIR . 'classes/Cashtippr.class.php');
 require_once (CASHTIPPR__PLUGIN_DIR . 'classes/CashtipprApi.class.php');
 require_once (CASHTIPPR__PLUGIN_DIR . 'api.php');
 CashtipprApi::getInstance(Cashtippr::getInstance());
+
+DatabaseMigration::checkAndMigrate();
 
 add_action ( 'init', array (
 		Cashtippr::getInstance(),

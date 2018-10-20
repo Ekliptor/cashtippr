@@ -5,7 +5,7 @@ Donate link: https://cashtippr.com/
 Requires at least: 4.7
 Tested up to: 4.9
 Requires PHP: 7.0
-Stable tag: 1.0.32
+Stable tag: 1.0.33
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -45,7 +45,7 @@ Check the demo at [CashTippr.com](https://cashtippr.com/ "CashtTippr") and send 
 
 
 This plugin makes use of the MoneyButton API which can be found at www.moneybutton.com. You may use this plugin with any Bitcoin Cash wallet of your choice.
-However, for your visitors to be able to send money they must register a wallet at MoneyButton.com.
+Users can send you money from any wallet using QR codes or with the swipe of a button after registering at MoneyButton.com.
 Please read their terms and privacy policy which can be found at: https://www.moneybutton.com/about
 
 

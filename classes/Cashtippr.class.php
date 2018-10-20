@@ -106,12 +106,7 @@ class Cashtippr {
 		if ($this->settings->get('rate_usd_bch') === 0.0)
 			add_action ( 'shutdown', array (self::$instance, 'updateCurrencyRates' ) );
 		
-		add_action( 'upgrader_process_complete', array (self::$instance, 'onUpgrade' ), 10, 2);
-		
-		// TODO remove or find better place for this. moving to plugins_loaded action still means we check on every run
-		$migrate = new DatabaseMigration(CASHTIPPR_VERSION, CASHTIPPR_VERSION);
-		if ($migrate->ensureLatestVersion() === false)
-			static::notifyErrorExt("Error ensuring latest DB version on migration", $migrate->getLastError());
+		//add_action( 'upgrader_process_complete', array (self::$instance, 'onUpgrade' ), 10, 2);		
 	}
 	
 	public static function plugin_activation() {
@@ -608,8 +603,9 @@ class Cashtippr {
 			$this->settings->set('rate_usd_bch', $json->data->quotes->USD->price);
 	}
 	
+	/*
 	public function onUpgrade($upgrader_object, $options) {
-		// TODO remove? upgrader_process_complete is useless since it's run on the OLD not updated code of WP. just like the upgrader_post_install filter
+		// upgrader_process_complete is useless since it's run on the OLD not updated code of WP. just like the upgrader_post_install filter
 		$currentPlugin = plugin_basename( CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
 		if ($options['action'] === 'update' && $options['type'] === 'plugin' ) {
 			foreach($options['plugins'] as $plugin) {
@@ -621,6 +617,7 @@ class Cashtippr {
 			}
 		}
 	}
+	*/
 	
 	public function notifyError($subject, $error, $data = null) {
 		static::notifyErrorExt($subject, $error, $data); // member function included for backwards compatibility

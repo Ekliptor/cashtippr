@@ -145,7 +145,7 @@ body div#page div#content .ct-hidden-text {
   left: 50%;
   transform: translate(-50%,-50%);
   width: 600px;
-  min-height: 600px;
+  min-height: 580px;
   background-color: #fff;
   display: block;
   z-index: 20005;
@@ -165,6 +165,26 @@ body div#page div#content .ct-hidden-text {
 }
 .ct-close-dialog {
 	float: right;
+}
+.ct-qr-rate {
+	font-style: italic;
+	margin: 0px 0px 0px 0px;
+}
+.ct-qr-code {
+	margin: 0px 0px 0px 0px;
+}
+@media(max-width:992px) {
+	.ct-modal {
+		width: 360px;
+		max-width: 96%;
+  		min-height:580px;
+	}
+	.ct-modal input {
+		max-width: 300px;
+	}
+	.ct-modal input[type="button"] {
+		margin-top: 5px;
+	}
 }
 
 @media print {
