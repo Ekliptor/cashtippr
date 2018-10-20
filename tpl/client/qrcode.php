@@ -29,8 +29,8 @@ if (!defined('ABSPATH'))
 		    <input type="button" class="ct-copy-field" value="<?php esc_attr_e( 'Copy', 'ekliptor' ); ?>">
 	      </p>
 	      <p class="ct-qr-rate">
-	        <?php esc_html_e( 'Approximate USD value:', 'ekliptor' ); ?> 
-	        <?php echo $btnConf['amount'];?>
+	        <?php esc_html_e( 'Approximate value:', 'ekliptor' ); ?> 
+	        <?php echo $btnConf['amount'];?> <?php echo esc_html($btnConf['unit']);?>
 	      </p>
 	      <p class="ct-qr-code">
 	        <img class="ct-loading" src="<?php echo esc_attr($btnConf['loadingImage'])?>" width="140" height="140" alt="<?php esc_attr_e('loading...', 'ekliptor');?>" title="<?php esc_attr_e('loading...', 'ekliptor');?>">

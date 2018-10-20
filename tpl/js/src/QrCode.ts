@@ -54,6 +54,7 @@ export class QrCode {
             //let text = inputEl.val();
             inputEl.select();
             this.cashtippr.window.document.execCommand("copy");
+            inputEl.select(); // ensure it's selected again for iOS devices to copy it manually
         });
     }
 }
