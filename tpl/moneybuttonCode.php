@@ -15,7 +15,9 @@ if (!defined('ABSPATH'))
 	    data-to="<?php echo $btnConf['recAddress'];?>"
 	    data-amount="<?php echo $btnConf['amount'];?>"
 	    data-currency="<?php echo $btnConf['unit'];?>"
+	    <?php if(false):?>
 	    data-label="<?php echo $btnConf['amount'];?> <?php echo $btnConf['unit'];?>"
+	    <?php endif;?>
 	    data-button-data="<?php echo base64_encode(json_encode($btnConf['callbackData']));?>"
 	    data-type="tip"
 	    data-on-payment="onMoneyButtonPaymentG"
