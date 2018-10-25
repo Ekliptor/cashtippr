@@ -20,7 +20,7 @@
 		);
 		
 		$cookieInfo = $this->makeInfo(
-			__( 'In countries within the EU you are required by law to inform your visitors that your website is using cookies. Enabling this will inform your visitors on their first visit with a message at the buttom of the page.', 'ekliptor' ),
+			__( 'In countries within the EU you are required by law to inform your visitors that your website is using cookies. Enabling this will inform your visitors on their first visit with a message at the bottom of the page.', 'ekliptor' ),
 			'',
 			false
 		);

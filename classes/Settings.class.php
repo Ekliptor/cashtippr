@@ -370,7 +370,7 @@ class CTIP_Settings {
 						$defaultSanitizer->addAdminNotices($notice);
 						return $defaults[$settingName]; // default is disabled
 					}
-					if (CTIP_MemcachedSessionHandler::checkConnection($this->settings->get('memcached_host'), $this->settings->get('memcached_port')) === false) {
+					if (CTIP_MemcachedSessionHandler::checkConnection($settings->get('memcached_host'), $settings->get('memcached_port')) === false) {
 						$tplVars = array(
 								'msg' => __('Unable to connect to the memcached server you entered. Please ensure the memcached daemon is listening on the address you provided and you can access it from your network (firewall settings etc... ).', 'ekliptor')
 						);
