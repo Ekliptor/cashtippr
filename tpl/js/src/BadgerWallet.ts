@@ -1,65 +1,53 @@
 import {AbstractPayment, CashTippr, CashtipprApiRes} from "./CashTippr";
 import {WebHelpers} from "./WebHelpers";
 
-export interface MoneyButtonPayment extends AbstractPayment {
+export interface BadgerWalletPayment extends AbstractPayment {
+    buttonId: string; // unique ID, tx ID in our case
+    txid: string;
     amount: string;
+    currency: string;
     buttonData: string; // JSON string "{}" or base64 data in our app
     buttonDataObj: any; // unserialized JS object from buttonData
-    buttonId: string; // unique ID, tx ID in our case
-    clientId: string;
-    createdAt: string; // ISO date
-    currency: string;
-    deletedAt: string; // ISO date
-    id: string;
-    normalizedTxid: string;
-    satoshis: string;
-    status: string;
-    statusDescription: string;
-    transactionId: string;
-    txid: string;
-    updatedAt: string; // ISO date
-    userId: string;
 }
 
-export class MoneyButton {
-    protected static readonly UPDATE_AMOUNT_DELAY_MS = 300; // delay it to prevent flickering if the user updates multiplet imes
-
+export class BadgerWallet {
     protected cashtippr: CashTippr;
     protected webHelpers: WebHelpers;
-    protected globalCallbacks: boolean; // expose callback functions to window object because MoneyButton currently doesn't support functions on objects
-    protected scheduleUpdateAmountTimerID = 0;
+    protected globalCallbacks: boolean; // expose callback functions to window object because BadgerButton currently doesn't support functions on objects
 
     constructor(cashtippr: CashTippr, webHelpers: WebHelpers, globalCallbacks = false) {
         this.cashtippr = cashtippr;
         this.webHelpers = webHelpers;
         this.globalCallbacks = globalCallbacks;
+
         if (this.globalCallbacks === true) {
             setTimeout(() => { // must be done after constructor or else functions are undefined
-                this.cashtippr.window['onMoneyButtonPayment'] = this.onMoneyButtonPayment;
-                this.cashtippr.window['onMoneyButtonError'] = this.onMoneyButtonError;
-                this.cashtippr.window['onMoneyButtonClientPayment'] = this.sendPaymentReceived;
+                this.cashtippr.window['onBadgerPayment'] = this.onBadgerPayment;
+                this.cashtippr.window['onBadgerClientPayment'] = this.sendPaymentReceived;
             }, 0);
         }
 
         this.cashtippr.$(this.cashtippr.window.document).ready(($) => {
             this.cashtippr.$(".ct-input-amount").keyup((event) => {
-                this.scheduleUpdateAmount(event.target);
+                this.updateButtonAmount(event.target);
             });
             this.cashtippr.$(".ct-input-amount").change((event) => {
-                this.scheduleUpdateAmount(event.target);
+                this.updateButtonAmount(event.target);
             });
         });
     }
 
-    public onMoneyButtonPayment(payment: MoneyButtonPayment) {
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+
+    protected onBadgerPayment(payment: BadgerWalletPayment) {
         if (typeof payment.buttonData === "string" && payment.buttonData.length !== 0 && payment.buttonData[0] !== "{")
             payment.buttonDataObj = JSON.parse(this.cashtippr.getWebHelpers().fromBase64(payment.buttonData)) || {}; // this.webHelpers is undefined
         if (payment.domID === undefined)
             payment.domID = "ct-btn-wrap-" + payment.buttonId;
-        //console.log("MB payment", payment)
-        // buttonDataObj.days === 0
+        //console.log("Badger Payment", payment);
 
-        // TODO make an ajax call to WP to check if the payment has actually been received (once they support webhooks)
+        // TODO make an ajax call to WP to check if the payment has actually been received (will an extension support some webhook callback? likely not)
         // then depending on if the content is hidden with CSS: modify style or reload page (server can tell this, or we add a variable)
         // simply always remove the style
         if (this.cashtippr.getConfig().show_search_engines === true) {
@@ -77,17 +65,17 @@ export class MoneyButton {
                     this.cashtippr.$(".ct-more").fadeOut("slow");
             }
             //this.sendPaymentReceived(payment);
-            this.cashtippr.window['onMoneyButtonClientPayment'].call(this.cashtippr.mb, payment, (res: CashtipprApiRes) => {
+            this.cashtippr.window['onBadgerClientPayment'].call(this.cashtippr.badger, payment, (res: CashtipprApiRes) => {
                 if (payment.buttonDataObj && payment.buttonDataObj.shout === true)
                     this.cashtippr.shout.onPayment(payment);
             });
             // TODO increment tips received and donation goal progress with JS
             if (typeof this.cashtippr.window['onCashtipprPayment'] === "function")
-                this.cashtippr.window['onCashtipprPayment'].call(this.cashtippr.window, {moneybutton: payment});
+                this.cashtippr.window['onCashtipprPayment'].call(this.cashtippr.window, {badger: payment});
             return;
         }
 
-        this.cashtippr.window['onMoneyButtonClientPayment'].call(this.cashtippr.mb, payment, (res: CashtipprApiRes) => {
+        this.cashtippr.window['onBadgerClientPayment'].call(this.cashtippr.badger, payment, (res: CashtipprApiRes) => {
             if (payment.buttonDataObj && payment.buttonDataObj.shout === true) {
                 this.cashtippr.shout.onPayment(payment);
                 return; // this will already reload the page
@@ -100,14 +88,7 @@ export class MoneyButton {
         });
     }
 
-    public onMoneyButtonError(error: any) {
-        this.cashtippr.window.console.error("MoneyButton payment error", error)
-    }
-
-    // ################################################################
-    // ###################### PRIVATE FUNCTIONS #######################
-
-    protected sendPaymentReceived(payment: MoneyButtonPayment, callback?: (res: CashtipprApiRes) => void) {
+    protected sendPaymentReceived(payment: BadgerWalletPayment, callback?: (res: CashtipprApiRes) => void) {
         let params = {
             txid: payment.buttonId,
             am: payment.amount
@@ -117,32 +98,19 @@ export class MoneyButton {
         });
     }
 
-    protected scheduleUpdateAmount(target: Element) {
-        if (this.scheduleUpdateAmountTimerID !== 0)
-            clearTimeout(this.scheduleUpdateAmountTimerID);
-        this.scheduleUpdateAmountTimerID = setTimeout(() => {
-            this.updateButtonAmount(target);
-        }, MoneyButton.UPDATE_AMOUNT_DELAY_MS);
-    }
-
     protected updateButtonAmount(target: Element) {
         const btnContainer = this.cashtippr.$(target).parent().parent();
-        const btnFrame = btnContainer.find("iframe");
-        if (!btnFrame) {
-            console.error("Unable to find MoneyButton iframe at element", btnContainer);
+        const btn = btnContainer.find(".badger-button");
+        if (!btn) {
+            this.cashtippr.window.console.error("Unable to find Badger button", btnContainer);
             return;
         }
-        let src = btnFrame.attr("src");
-        if (src.indexOf("&amt=") === -1 || src.indexOf("&lbl=") === -1) {
-            console.error("Unable to find MoneyButton amount in iframe src. Please report this, as most likely their API has changed. src=%s", src);
+        const amountNewUserCurrency = parseFloat(this.cashtippr.$(target).val());
+        if (amountNewUserCurrency === 0.0 || amountNewUserCurrency === Number.NaN)
             return;
-        }
-        const amountNew = parseFloat(this.cashtippr.$(target).val());
-        if (amountNew === 0.0 || amountNew === Number.NaN)
-            return;
-        // TODO check if the amount really changed? shouldn't be needed
-        src = src.replace(/&amt=[0-9\.]+&/, "&amt=" + amountNew + "&")
-            .replace(/&lbl=[0-9\.]+/, "&lbl=" + amountNew);
-        btnFrame.attr("src", src);
+        const currency = this.cashtippr.getConfig().display_currency;
+        const amountSats = CashTippr.toSatoshis(amountNewUserCurrency / this.cashtippr.getConfig().rate[currency]);
+        btn.attr("data-satoshis", amountSats);
+        btn.find(".ct-btn-display-amount").text(amountNewUserCurrency);
     }
 }

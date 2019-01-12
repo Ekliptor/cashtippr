@@ -106,7 +106,7 @@ class Cashtippr {
 		if ($this->settings->get('rate_usd_bch') === 0.0)
 			add_action ( 'shutdown', array (self::$instance, 'updateCurrencyRates' ) );
 		
-		//add_action( 'upgrader_process_complete', array (self::$instance, 'onUpgrade' ), 10, 2);		
+		//add_action( 'upgrader_process_complete', array (self::$instance, 'onUpgrade' ), 10, 2);	
 	}
 	
 	public static function plugin_activation() {
@@ -340,17 +340,13 @@ class Cashtippr {
 		$btnConf['amount'] = isset($attrs['amount']) && $attrs['amount'] > 0.0 ? (float)$attrs['amount'] : $this->settings->get('default_amount');
 		if ($btnConf['amount'] < 0.00000001)
 			$btnConf['amount'] = 0.00000001;
+		$btnConf['sats'] = static::toSatoshis($btnConf['amount'] / $this->settings->get('rate_usd_bch'));
 		$btnConf['amountBCH'] = $this->toAmountBCH($btnConf['amount'], $btnConf['unit']);
 		$btnConf['txid'] = $this->createTransactionId($btnConf['recAddress'], $btnConf['amount'], 0, $btnConf['postID']);
 		if ($btnConf['txid'] === false)
 			return esc_html("Unable to create a transaction ID. Please try again or report a bug if the problem persists.", "ekliptor") . '<br><br>';
 		
-		$btnConf['size'] = "md"; // TODO settings to customize moneybutton layout
-		$btnConf['color'] = "light";
-		// TODO adjust input step size depending on currency
-		// TODO shortcode attribute to decide if we want to hide with CSS or on the server-side
-		$btnConf['hideAmount'] = "false";
-		$btnConf['enableDropdown'] = "false";
+		//$btnConf['bchImage'] = plugins_url( 'img/bch_64.png', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
 		$btnConf['edit'] = $this->canEditButtonAmount($attrs);
 		//$webhookUrl = "http%3A%2F%2Flocalhost%2Fwp-json%2Fcashtippr%2Fv1%2Fmoneybutton&data=foo%3Dba%26x%3D2";
 		//$btnConf['webhookUrl'] = urlencode(site_url("wp-json/v1/moneybutton")) . "&data=" . urlencode("tid=" . $btnConf['txid']); // tid=ba&x=2
@@ -521,7 +517,11 @@ class Cashtippr {
 			'cookieLifeDays' => ceil(static::SESSION_LIFETIME_SEC / DAY_IN_SECONDS),
 			'cookiePath' => $this->siteUrlParts['path'],
 			'siteUrl' => $this->getSiteUrl(),
-			'show_search_engines' => $this->settings->get('show_search_engines')
+			'show_search_engines' => $this->settings->get('show_search_engines'),
+			'display_currency' => strtolower($this->settings->get('button_currency')),
+			'rate' => array(
+					'usd' => $this->settings->get('rate_usd_bch')
+			)
 		);
 		if ($this->settings->get('show_cookie_consent') === true && !isset($_COOKIE[static::CONSENT_COOKIE_NAME])) {
 			// TODO add option to only show this to specific countries
@@ -573,34 +573,18 @@ class Cashtippr {
 	}
 	
 	public function updateCurrencyRates() {
-		/*
-		$domain = parse_url(site_url('/'), PHP_URL_HOST);
-		// find alternative APIs: coinmarketcap.com requires API key now, markets.bitcoin.com doesnt have one?
-		$res = wp_remote_get('https://wolfbot.org/wp-json/tradebot/v1/getRate?base=USD&quote=BCH&domain=' . $domain);
+		$res = wp_remote_get('https://index-api.bitcoin.com/api/v0/cash/price/usd');
 		if (is_array($res) === false) {
 			static::notifyErrorExt('Error updating currency rates', $res);
 			return;
 		}
 		$json = json_decode($res['body']);
-		if ($json === null || empty($json->data)) {
+		if ($json === null || empty($json->price)) {
 			static::notifyErrorExt('Invalid response when updating currency rates', $res);
 			return;
 		}
-		if ($json->data[0]->rate != 0.0)
-			$this->settings->set('rate_usd_bch', $json->data[0]->rate);
-		*/
-		$res = wp_remote_get('https://api.coinmarketcap.com/v2/ticker/1831/');
-		if (is_array($res) === false) {
-			static::notifyErrorExt('Error updating currency rates', $res);
-			return;
-		}
-		$json = json_decode($res['body']);
-		if ($json === null || empty($json->data) || empty($json->data->quotes) || empty($json->data->quotes->USD)) {
-			static::notifyErrorExt('Invalid response when updating currency rates', $res);
-			return;
-		}
-		if ($json->data->quotes->USD->price != 0.0)
-			$this->settings->set('rate_usd_bch', $json->data->quotes->USD->price);
+		if ($json->price != 0.0)
+			$this->settings->set('rate_usd_bch', $json->price / 100.0); // receiced in USD cents
 	}
 	
 	/*
@@ -654,6 +638,10 @@ class Cashtippr {
 		for ($i = 0; $i < $len; $i++)
 			$random .= $chars[mt_rand(0, $max)];
 		return $random;
+	}
+	
+	public static function toSatoshis($bch) {
+		return floor($bch * 100000000);
 	}
 	
 	public function getSiteUrl(array $query = array()) {

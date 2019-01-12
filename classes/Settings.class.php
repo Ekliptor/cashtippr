@@ -323,6 +323,14 @@ class CTIP_Settings {
 						$defaultSanitizer->addAdminNotices($notice);
 						return $settings->get($settingName); // keep the previous value
 					}
+					if ($newValue !== 'USD') { // TODO crawl more conversion rates to display them
+						$tplVars = array(
+								'msg' => __('Currently only USD is supported as display currency. All payments happen in BCH on chain.', 'ekliptor'),
+						);
+						$notice = new CTIP_AdminNotice($tpl->getTemplate('adminNotice.php', $tplVars), 'error');
+						$defaultSanitizer->addAdminNotices($notice);
+						return 'USD';
+					}
 					return $newValue;
 				},
 				'custom_access_days' => function($newValue, string $settingName) use($tpl, $defaultSanitizer) {

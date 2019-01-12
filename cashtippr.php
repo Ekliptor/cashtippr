@@ -1,9 +1,9 @@
 <?php
 /*
- * Plugin Name: CashTippr: Bitcoin Cash MoneyButton payments
+ * Plugin Name: CashTippr: Bitcoin Cash instant tips & payments
  * Plugin URI: https://cashtippr.com/
- * Description: Earn money for your content using instant Bitcoin Cash tips (0 conf) with MoneyButton.
- * Version: 1.0.38
+ * Description: Earn money for your content using instant Bitcoin Cash tips (0 conf).
+ * Version: 1.0.40
  * Author: Ekliptor
  * Author URI: https://twitter.com/ekliptor
  * License: GPLv3

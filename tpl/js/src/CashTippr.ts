@@ -1,13 +1,18 @@
 import {Tooltips} from "./admin/Tooltips";
-import {MoneyButton} from "./MoneyButton";
 import {WebHelpers, WebHelpersConfig} from "./WebHelpers";
 import {BlurryImage} from "./BlurryImage";
 import {Shout} from "./Shout";
 import {QrCode} from "./QrCode";
+import {BadgerWallet} from "./BadgerWallet";
 
+export interface BitcoinCashConversionRate {
+    [fiatCurrency: string]: number;
+}
 export interface CashTipprConfig extends WebHelpersConfig {
     // same keys as in php
     show_search_engines: boolean;
+    display_currency: string;
+    rate: BitcoinCashConversionRate;
 }
 
 export interface AbstractPayment {
@@ -28,7 +33,7 @@ export class CashTippr {
 
     public readonly window: Window;
     public readonly $: JQueryStatic;
-    public readonly mb: MoneyButton;
+    public readonly badger: BadgerWallet;
     public readonly qr: QrCode;
     public readonly blurryImage: BlurryImage;
     public readonly shout: Shout;
@@ -46,7 +51,7 @@ export class CashTippr {
         this.config.confirmCookiesBtn = CashTippr.CONFIRM_COOKIES_BTN;
 
         this.webHelpers = new WebHelpers(this.window, this.$, this.config);
-        this.mb = new MoneyButton(this, this.webHelpers,true);
+        this.badger = new BadgerWallet(this, this.webHelpers, true);
         this.qr = new QrCode(this, this.webHelpers);
         this.blurryImage = new BlurryImage(this);
         this.shout = new Shout(this);
@@ -54,6 +59,10 @@ export class CashTippr {
             this.tooltips.initToolTips();
             this.webHelpers.checkCookieConsent();
         });
+    }
+
+    public static toSatoshis(bch: number) {
+        return Math.floor(bch * 100000000);
     }
 
     public getConfig() {

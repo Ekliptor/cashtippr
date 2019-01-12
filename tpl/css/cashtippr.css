@@ -1,12 +1,20 @@
 
 .ct-button {
 }
+.ct-btn-wrap-top {
+}
 .ct-button-wrap {
 	display: inline-block!important;
+	margin-top: 5px;
 }
 .ct-qrcode-wrap {
 	display: inline-block;
-	margin: 0px 0px 0px 0px;
+	margin-left: 10px;
+	margin-top: 10px;
+	height: 70px;
+	float: left;
+}
+.ct-qrcode-btn {
 }
 .ct-qrcode-wrap img {
 	margin: 0px 0px 0px 0px;

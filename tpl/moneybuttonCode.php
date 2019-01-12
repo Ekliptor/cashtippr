@@ -2,7 +2,7 @@
 if (!defined('ABSPATH'))
 	exit("denied");
 ?>
-<div id="ct-btn-wrap-<?php echo $btnConf['txid'];?>">
+<div id="ct-btn-wrap-<?php echo $btnConf['txid'];?>" class="ct-btn-wrap-top">
 	<?php if($btnConf['addQrCode'] === true):?>  
       <div class="ct-qrcode-wrap">
         <a class="ct-qrcode-btn" href="javascript:;">
@@ -10,20 +10,13 @@ if (!defined('ABSPATH'))
         </a>
       </div> 
     <?php endif;?> 
-    <div class="ct-button-wrap">
-      <div class="money-button"
-	    data-to="<?php echo $btnConf['recAddress'];?>"
-	    data-amount="<?php echo $btnConf['amount'];?>"
-	    data-currency="<?php echo $btnConf['unit'];?>"
-	    <?php if(false):?>
-	    data-label="<?php echo $btnConf['amount'];?> <?php echo $btnConf['unit'];?>"
-	    <?php endif;?>
-	    data-button-data="<?php echo base64_encode(json_encode($btnConf['callbackData']));?>"
-	    data-type="tip"
-	    data-on-payment="onMoneyButtonPaymentG"
-	    data-on-error="onMoneyButtonErrorG"
-	    data-button-id="<?php echo $btnConf['txid'];?>"
-	  ></div>
+	<div class="ct-button-wrap">
+      <button
+        class="badger-button"
+        data-to="<?php echo esc_attr($btnConf['recAddress']);?>"
+        data-satoshis="<?php echo $btnConf['sats'];?>"
+        data-success-callback="onBadgerPaymentG"
+      ><?php esc_attr_e('Send', 'ekliptor');?> <span class="ct-btn-display-amount"><?php echo $btnConf['amount'];?></span> <?php echo $btnConf['unit'];?></button>
     </div>  
 </div>
 <?php if ($includedMoneybuttonScript === false): $includedMoneybuttonScript = true;?>
@@ -31,12 +24,15 @@ if (!defined('ABSPATH'))
 		<?php include CASHTIPPR__PLUGIN_DIR . 'tpl/client/qrcode.php';?>
 	<?php endif;?>
 <script type="text/javascript">
-	function onMoneyButtonPaymentG(p) {
-		window.onMoneyButtonPayment(p);
-	}
-	function onMoneyButtonErrorG(p) {
-		window.onMoneyButtonError(p);
+	function onBadgerPaymentG(txid) {
+		window.onBadgerPayment({
+			buttonId: "<?php echo $btnConf['txid'];?>",
+			txid: txid,
+			amount: <?php echo esc_js($btnConf['amount']);?>,
+			currency: "<?php echo esc_js($btnConf['unit']);?>",
+			buttonData: "<?php echo base64_encode(json_encode($btnConf['callbackData']));?>"
+		});
 	}
 </script>
-<script type="text/javascript" src="https://api.moneybutton.com/moneybutton.js"></script>
+<script type="text/javascript" src="https://developer.bitcoin.com/badger/badgerButton-1.0.0.js"></script>
 <?php endif;?>

@@ -34,12 +34,12 @@ class CashtipprApi {
 						'required' => true,
 						'type' => 'string', // valid types: array, boolean, integer, number, string
 						'sanitize_callback' => array( self::$instance, 'sanitizeStringParam' ),
-						'description' => __( 'The Payment callback from moneybutton.', 'ekliptor' ),
+						'description' => __( 'The Payment callback from your Wallet.', 'ekliptor' ),
 					);
-		register_rest_route( 'cashtippr/v1', '/moneybutton', array(
+		register_rest_route( 'cashtippr/v1', '/badger', array(
 			array(
 				'methods' => WP_REST_Server::CREATABLE,
-				'permission_callback' => array( self::$instance, 'moneyButtonPermissionCallback' ),
+				'permission_callback' => array( self::$instance, 'cashtipprPermissionCallback' ),
 				'callback' => array( self::$instance, 'processPayment' ),
 				'args' => array(
 					'data' => $webhookDataParam	
@@ -62,7 +62,7 @@ class CashtipprApi {
 		register_rest_route( 'cashtippr/v1', '/mb-client', array(
 			array(
 				'methods' => WP_REST_Server::READABLE,
-				'permission_callback' => array( self::$instance, 'moneyButtonPermissionCallback' ),
+				'permission_callback' => array( self::$instance, 'cashtipprPermissionCallback' ),
 				'callback' => array( self::$instance, 'processClientPayment' ),
 				'args' => array(
 					'txid' => $txidParam,
@@ -74,7 +74,7 @@ class CashtipprApi {
 		register_rest_route( 'cashtippr/v1', '/qrcode', array(
 			array(
 				'methods' => WP_REST_Server::READABLE,
-				//'permission_callback' => array( self::$instance, 'moneyButtonPermissionCallback' ),
+				//'permission_callback' => array( self::$instance, 'cashtipprPermissionCallback' ),
 				'callback' => array( self::$instance, 'getQrCode' ),
 				'args' => array(
 					'txid' => $txidParam,
@@ -89,19 +89,15 @@ class CashtipprApi {
 		// https://github.com/WP-API/WP-API/issues/2490
 		//add_post_meta($this->post->ID, 'tipAmount', 3.0, true);
 		$response = new CashtipprApiRes();
-		// TODO as of september 12 MoneyButton is just launching
-		// the docs are still changing https://docs.moneybutton.com/docs/webhook.html
-		// as of right now even their <script src="https://moneybutton.com/moneybutton.js" /> script respons with 404
-		// https://docs.moneybutton.com/docs/html.html
+		// TODO will there ever be web callbacks ?
 		
-		// TODO our TX are valid for 24h. we should always check via JS before paying?
 		return rest_ensure_response($response);
 	}
 	
 	public function processClientPayment(WP_REST_Request $request) {
 		global $wpdb;
 		$table = Cashtippr::getTableName('transactions');
-		// TODO remove this once MoneyButton webhooks are working
+		// TODO remove this once webhooks are working
 		
 		$response = new CashtipprApiRes();
 		$txid = $request->get_param('txid');
@@ -154,7 +150,7 @@ class CashtipprApi {
 		return rest_ensure_response($response);
 	}
 	
-	public function moneyButtonPermissionCallback(WP_REST_Request $request) {
+	public function cashtipprPermissionCallback(WP_REST_Request $request) {
 		return true; // everyone can access this for now
 		//$key = $request->get_param("apiKey");
 	}

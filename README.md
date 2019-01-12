@@ -18,7 +18,7 @@ This plugin is also available in the [WordPress plugin installer](https://wordpr
 
 
 ## ToDos
-* implement [MoneyButton webhooks](https://github.com/moneybutton/paywall-example) using [WP REST API](https://developer.wordpress.org/rest-api/)
+* add BCH web payment buttons, mobile browsers with integrated wallets,...
 * crawl crypto-fiat exchange rates and implement QR code tipping for currencies other than USD
 * add generation of 1-time BCH addresses using xPub to add QR codes for paywalls too (in PHP only, so we need an API server supporting this)
 * see the TODO comments in the source code for many more smaller things

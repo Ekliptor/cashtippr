@@ -187,8 +187,7 @@ class CashtipprAdmin {
     		return;
     	$content = sprintf(
         	__( 'This website uses cookies to track recurring visitors and their previous donations/payments.
-				Additionally it loads code from MoneyButton.com for payments. Users have to register an account there 
-				to send money. Their privacy policy can be found <a href="%s" target="_blank" rel="nofollow">here</a>.',
+				Additionally it loads code API code from bitcoin.com to interact with BadgerWallet.',
         			'ekliptor' ),
         	'https://www.moneybutton.com/about'
     	);

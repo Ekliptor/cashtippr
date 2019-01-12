@@ -3,17 +3,17 @@ Contributors: ekliptor
 Tags: bitcoin, bch, ecommerce, e-commerce, blog, tipping, store, sales, sell, shop, bitcoin cash, btc
 Donate link: https://cashtippr.com/
 Requires at least: 4.7
-Tested up to: 4.9
+Tested up to: 5.0
 Requires PHP: 7.0
-Stable tag: 1.0.38
+Stable tag: 1.0.40
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-CashTippr: Bitcoin Cash MoneyButton payments
+CashTippr: Bitcoin Cash instant tips & payments
 
 == Description ==
 
-Earn money for your content using instant Bitcoin Cash tips (0 conf) with MoneyButton and QR codes.
+Earn money for your content using instant Bitcoin Cash tips (0 conf).
 
 **Advantages & Features:**
 
@@ -44,9 +44,7 @@ Check the demo at [CashTippr.com](https://cashtippr.com/ "CashtTippr") and send 
 * Memcached support for high traffic sites (>50k users daily)
 
 
-This plugin makes use of the MoneyButton API which can be found at www.moneybutton.com. You may use this plugin with any Bitcoin Cash wallet of your choice.
-Users can send you money from any wallet using QR codes or with the swipe of a button after registering at MoneyButton.com.
-Please read their terms and privacy policy which can be found at: https://www.moneybutton.com/about
+This plugin loads code API code from bitcoin.com to interact with BadgerWallet.
 
 
 == Installation ==
@@ -54,7 +52,7 @@ Just install it from the WordPress plugin store or upload the cashtippr.zip file
 
 == Frequently Asked Questions ==
 = Is this plugin for free? =
-Yes this plugin is completely free. MoneyButton might charge businesses with many transactions a transaction fee in the future.
+Yes this plugin is completely free.
 
 == Screenshots ==
 1. Tip button in post
@@ -63,6 +61,9 @@ Yes this plugin is completely free. MoneyButton might charge businesses with man
 4. Admin Area 3
 
 == Changelog ==
+= 1.0.40 =
+* replaced MoneyButton with BadgerWallet
+
 = 1.0.29 =
 * added support for QR code tips in BCH of non-restricted content (only when USD is selected as currency, more coming later)
 
