@@ -59,6 +59,12 @@ class CashtipprApi {
 						'sanitize_callback' => array( self::$instance, 'sanitizeFloatParam' ),
 						'description' => __( 'The amount of the payment.', 'ekliptor' ),
 					);
+		$keepTransactionParam = array(
+						'required' => false,
+						'type' => 'boolean',
+						//'sanitize_callback' => array( self::$instance, 'sanitizeFloatParam' ),
+						'description' => __( 'Whether to keep the transaction in MySQL for other plugins/addons to process (default false).', 'ekliptor' ),
+					);
 		register_rest_route( 'cashtippr/v1', '/mb-client', array(
 			array(
 				'methods' => WP_REST_Server::READABLE,
@@ -66,7 +72,8 @@ class CashtipprApi {
 				'callback' => array( self::$instance, 'processClientPayment' ),
 				'args' => array(
 					'txid' => $txidParam,
-					'am' => $amountParam
+					'am' => $amountParam,
+					'keep' => $keepTransactionParam
 				)
 			)
 		) );
@@ -131,7 +138,8 @@ class CashtipprApi {
 			));
 			
 			// delete the transaction from DB. every button has its unique txid and can only be paid once
-			$wpdb->delete($table, array('txid' => $txid));
+			if ($request->get_param('keep') !== true)
+				$wpdb->delete($table, array('txid' => $txid));
 		}
 		else {
 			$response->error = true;

@@ -32,6 +32,7 @@ class DatabaseMigration {
 	
 	public function migrate(): bool {
 		$queries = array();
+		// TODO also add crons here if we add more later
 		switch ($this->lastVersion) {
 			// add migration queries in order from oldest version to newest
 			case '1':

@@ -365,6 +365,7 @@ class Cashtippr {
 		$btnConf['closeImage'] = $this->closeImage;
 		$btnConf['loadingImage'] = $this->loadingImage;
 		$btnConf['addQrCode'] = $btnConf['isRestricted'] === false && $btnConf['tag'] === 'tippr_button' && $btnConf['unit'] === 'USD'; // TODO QR code support for more currencies
+		$btnConf['btnText'] = __('Send', 'ekliptor');
 		$includedMoneybuttonScript = $this->getIncludedMoneybuttonScript();
 		ob_start();
 		switch ($tag) {
@@ -583,7 +584,7 @@ class Cashtippr {
 			static::notifyErrorExt('Invalid response when updating currency rates', $res);
 			return;
 		}
-		if ($json->price != 0.0)
+		if ($json->price > 0.0)
 			$this->settings->set('rate_usd_bch', $json->price / 100.0); // receiced in USD cents
 	}
 	
@@ -663,7 +664,7 @@ class Cashtippr {
 		return home_url( add_query_arg( array(), $wp->request ) );
 	}
 	
-	protected function getReceiverAddress($attrs) {
+	public function getReceiverAddress($attrs = array()) {
 		if ($this->settings->get('author_bch_addresses') === false) 
 			return $this->settings->get('bch_address');
 		$address = isset($attrs['address']) && $this->sanitizer->isValidBitcoinCashAddress($attrs['address']) ? trim($attrs['address']) : $this->settings->get('bch_address');
@@ -672,6 +673,25 @@ class Cashtippr {
 			return $address;
 		$authorAddress = get_user_meta($authorID, 'author_bch_address', true);
 		return $authorAddress ? $authorAddress : $address;
+	}
+	
+	public function createTransactionId(string $recAddress, float $amount, int $days = 0, int $postID = 0) {
+		global $wpdb;
+		// TODO for better performance create all needed TX per page at once and insert them in bulk
+		// TODO store this in memcached too if memcached is used
+		$table = static::getTableName('transactions');
+		$txid = static::getRandomString(40);
+		$data = array(
+				'txid' => $txid,
+				'address' => $recAddress,
+				'amount' => $amount,
+				'session_id' => session_id(),
+				'post_id' => $postID !== 0 ? $postID : ($this->post !== null ? $this->post->ID : 0),
+				'days' => $days
+		);
+		if ($wpdb->insert($table, $data) !== 1)
+			return false; // otherwise we can't check if we received the payment
+		return $txid;
 	}
 	
 	protected function containsTipprButton(string $postContent, bool $hideButtonOnly = false): bool {
@@ -735,25 +755,6 @@ class Cashtippr {
 				return $value === '1' || $value === 'true';
 		}
 		return false;
-	}
-	
-	protected function createTransactionId(string $recAddress, float $amount, int $days = 0, int $postID = 0) {
-		global $wpdb;
-		// TODO for better performance create all needed TX per page at once and insert them in bulk
-		// TODO store this in memcached too if memcached is used
-		$table = static::getTableName('transactions');
-		$txid = static::getRandomString(40);
-		$data = array(
-				'txid' => $txid,
-				'address' => $recAddress,
-				'amount' => $amount,
-				'session_id' => session_id(),
-				'post_id' => $postID !== 0 ? $postID : ($this->post !== null ? $this->post->ID : 0),
-				'days' => $days
-		);
-		if ($wpdb->insert($table, $data) !== 1)
-			return false; // otherwise we can't check if we received the payment
-		return $txid;
 	}
 	
 	/**

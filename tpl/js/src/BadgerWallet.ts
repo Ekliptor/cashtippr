@@ -4,7 +4,7 @@ import {WebHelpers} from "./WebHelpers";
 export interface BadgerWalletPayment extends AbstractPayment {
     buttonId: string; // unique ID, tx ID in our case
     txid: string;
-    amount: string;
+    amount: number;
     currency: string;
     buttonData: string; // JSON string "{}" or base64 data in our app
     buttonDataObj: any; // unserialized JS object from buttonData
@@ -50,7 +50,8 @@ export class BadgerWallet {
         // TODO make an ajax call to WP to check if the payment has actually been received (will an extension support some webhook callback? likely not)
         // then depending on if the content is hidden with CSS: modify style or reload page (server can tell this, or we add a variable)
         // simply always remove the style
-        if (this.cashtippr.getConfig().show_search_engines === true) {
+        const config = this.cashtippr.getConfig();
+        if (config.show_search_engines === true || config.ajaxConfirm === true) {
             //this.cashtippr.$(".ct-hidden-text").css("cssText", "display: inherit!important;");
             // especially with editable + hidden button on same page
 
@@ -68,6 +69,8 @@ export class BadgerWallet {
             this.cashtippr.window['onBadgerClientPayment'].call(this.cashtippr.badger, payment, (res: CashtipprApiRes) => {
                 if (payment.buttonDataObj && payment.buttonDataObj.shout === true)
                     this.cashtippr.shout.onPayment(payment);
+                if (payment.buttonDataObj && payment.buttonDataObj.woocommerce === true)
+                    this.cashtippr.woocommerce.onPayment(payment);
             });
             // TODO increment tips received and donation goal progress with JS
             if (typeof this.cashtippr.window['onCashtipprPayment'] === "function")
@@ -91,7 +94,8 @@ export class BadgerWallet {
     protected sendPaymentReceived(payment: BadgerWalletPayment, callback?: (res: CashtipprApiRes) => void) {
         let params = {
             txid: payment.buttonId,
-            am: payment.amount
+            am: payment.amount,
+            keep: this.cashtippr.getConfig().keepTransaction === true
         }
         this.webHelpers.getApi("/wp-json/cashtippr/v1/mb-client", params, (data) => {
             callback && callback(data);

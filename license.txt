@@ -1,4 +1,4 @@
-CashTippr - Bitcoin Cash instant tips & payments
+CashTippr - Bitcoin Cash instant tips & payments for your content
 
 Copyright 2018 by the contributors
 
@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 This program incorporates work covered by the following copyright and
 permission notices:
 
-  CashTippr - Bitcoin Cash instant tips & payments
+  CashTippr - Bitcoin Cash instant tips & payments for your content
 
   CashTippr is released under the GPL
 

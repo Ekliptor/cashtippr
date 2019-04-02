@@ -14,7 +14,7 @@ class CashtipprAdmin {
 	 * For example: toplevel_page_cashtippr
 	 * @var string Page hook
 	 */
-	public $pageHook;
+	public $pageHook = '';
 	
 	/** @var CTIP_TemplateEngine */
 	public $tpl = null;
@@ -161,7 +161,8 @@ class CashtipprAdmin {
         
         $pluginBoxes = array(
         		'BlurryImage' => false,
-        		'Shout' => false
+        		'Shout' => false,
+        		'Woocommerce' => false
         );
         $pluginBoxes = apply_filters('cashtippr_admin_metaboxes', $pluginBoxes, $post_type); // allows plugins to add metaboxes
         if ($this->pageHook === static::PAGE_HOOK && $this->allPluginsEnabled($pluginBoxes) === false) { // advertise our plugin addons
@@ -188,8 +189,7 @@ class CashtipprAdmin {
     	$content = sprintf(
         	__( 'This website uses cookies to track recurring visitors and their previous donations/payments.
 				Additionally it loads code API code from bitcoin.com to interact with BadgerWallet.',
-        			'ekliptor' ),
-        	'https://www.moneybutton.com/about'
+        			'ekliptor' )
     	);
     	wp_add_privacy_policy_content('CashTippr', wp_kses_post( wpautop( $content, false ) ) );
     }

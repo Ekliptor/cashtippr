@@ -26,7 +26,9 @@ export class Shout {
     }
 
     public onPayment(payment: AbstractPayment) {
-        this.cashtippr.$("#" + payment.domID).parent().parent().submit();
+        setTimeout(() => { // shouldn't be needed, but BadgerWallet is really fast (running locally). just be sure the WP backend processed our payment
+            this.cashtippr.$("#" + payment.domID).parent().parent().submit();
+        }, 500);
     }
 
     // ################################################################
@@ -65,6 +67,10 @@ export class Shout {
         });
         this.cashtippr.$(".ct-message").change((event) => {
             this.scheduleCharsUpdate();
+        });
+        this.cashtippr.$(".ct-shout-form").on("submit.cashtippr", (event) => { // fix for badger wallet submitting form on click (before payment)
+            event.preventDefault();
+            this.cashtippr.$(event.target).off("submit.cashtippr");
         });
     }
 

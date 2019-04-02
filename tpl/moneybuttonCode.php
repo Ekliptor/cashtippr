@@ -15,8 +15,8 @@ if (!defined('ABSPATH'))
         class="badger-button"
         data-to="<?php echo esc_attr($btnConf['recAddress']);?>"
         data-satoshis="<?php echo $btnConf['sats'];?>"
-        data-success-callback="onBadgerPaymentG"
-      ><?php esc_attr_e('Send', 'ekliptor');?> <span class="ct-btn-display-amount"><?php echo $btnConf['amount'];?></span> <?php echo $btnConf['unit'];?></button>
+        data-success-callback="onBadgerPaymentG_<?php echo $btnConf['txid'];?>"
+      ><?php echo esc_html($btnConf['btnText']);?> <span class="ct-btn-display-amount"><?php echo $btnConf['amount'];?></span> <?php echo $btnConf['unit'];?></button>
     </div>  
 </div>
 <?php if ($includedMoneybuttonScript === false): $includedMoneybuttonScript = true;?>
@@ -24,7 +24,7 @@ if (!defined('ABSPATH'))
 		<?php include CASHTIPPR__PLUGIN_DIR . 'tpl/client/qrcode.php';?>
 	<?php endif;?>
 <script type="text/javascript">
-	function onBadgerPaymentG(txid) {
+	function onBadgerPaymentG_<?php echo $btnConf['txid'];?>(txid) {
 		window.onBadgerPayment({
 			buttonId: "<?php echo $btnConf['txid'];?>",
 			txid: txid,
@@ -34,5 +34,5 @@ if (!defined('ABSPATH'))
 		});
 	}
 </script>
-<script type="text/javascript" src="https://developer.bitcoin.com/badger/badgerButton-1.0.0.js"></script>
+<script type="text/javascript" src="https://developer.bitcoin.com/badger/badgerButton-1.0.1.js"></script>
 <?php endif;?>

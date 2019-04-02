@@ -486,6 +486,12 @@ class CTIP_Settings {
 				'shout_links' => true,
 				'shout_update_nonce' => Cashtippr::getRandomString(20),
 				'shout_last_update_check' => time(),
+				
+				// Woocommerce
+				'blockchain_api' => 'BitcoinComRestApi',
+				'wait_confirmations' => 3,
+				'blockchain_rest_url' => 'https://rest.bitcoin.com/v2/', // TODO make a setting in main plugin?
+				'lastCheckedTransactions' => 0
 		);
 		$defaults = apply_filters('cashtippr_default_settings', $defaults);
 		if ($onUpdate === true) { // html form checkboxes are not present when false, so assume false for all on update

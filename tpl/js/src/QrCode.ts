@@ -21,9 +21,9 @@ export class QrCode {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected showQrDialog(target: Element) {
-        const paymentButtonlWrapper = this.cashtippr.$(target).parent().parent().parent();
-        const txid = paymentButtonlWrapper.attr("id").replace(/^ct-btn-wrap-/, "");
-        const paymentCtrlWrapper = paymentButtonlWrapper.parent();
+        const paymentButtonWrapper = this.cashtippr.$(target).parent().parent().parent();
+        const txid = this.cashtippr.getPluginPaymentID(paymentButtonWrapper);
+        const paymentCtrlWrapper = paymentButtonWrapper.parent();
         let amount = 0.0;
         if (paymentCtrlWrapper.find("input[name='amount']").length !== 0)
             amount = paymentCtrlWrapper.find("input[name='amount']").val(); // custom editable amount by user

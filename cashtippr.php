@@ -1,9 +1,9 @@
 <?php
 /*
- * Plugin Name: CashTippr: Bitcoin Cash instant tips & payments
+ * Plugin Name: CashTippr: Bitcoin Cash instant tips & payments for your content
  * Plugin URI: https://cashtippr.com/
  * Description: Earn money for your content using instant Bitcoin Cash tips (0 conf).
- * Version: 1.0.40
+ * Version: 1.0.46
  * Author: Ekliptor
  * Author URI: https://twitter.com/ekliptor
  * License: GPLv3
@@ -18,7 +18,7 @@ if (! defined( 'ABSPATH' )) {
 	exit ();
 }
 
-define ( 'CASHTIPPR_VERSION', '1.0.38' );
+define ( 'CASHTIPPR_VERSION', '1.0.46' );
 define ( 'CASHTIPPR__MINIMUM_WP_VERSION', '4.7' );
 define ( 'CASHTIPPR__PLUGIN_DIR', plugin_dir_path ( __FILE__ ) );
 

@@ -4,6 +4,7 @@ import {BlurryImage} from "./BlurryImage";
 import {Shout} from "./Shout";
 import {QrCode} from "./QrCode";
 import {BadgerWallet} from "./BadgerWallet";
+import {Woocommerce} from "./Woocommerce";
 
 export interface BitcoinCashConversionRate {
     [fiatCurrency: string]: number;
@@ -13,10 +14,14 @@ export interface CashTipprConfig extends WebHelpersConfig {
     show_search_engines: boolean;
     display_currency: string;
     rate: BitcoinCashConversionRate;
+    ajaxConfirm?: boolean;
+    keepTransaction?: boolean; // keep the transaction in mysql so that plugin addons can use them after payment
 }
 
 export interface AbstractPayment {
     domID: string; // the full ID of the wrapper div for the payment control
+    txid: string; // the blockchain transaction ID/hash
+    amount: number; // the amount in the website's currency (USD,...)
 }
 
 export interface CashtipprApiRes {
@@ -37,6 +42,7 @@ export class CashTippr {
     public readonly qr: QrCode;
     public readonly blurryImage: BlurryImage;
     public readonly shout: Shout;
+    public readonly woocommerce: Woocommerce;
 
     protected config: CashTipprConfig;
     protected webHelpers: WebHelpers;
@@ -55,6 +61,7 @@ export class CashTippr {
         this.qr = new QrCode(this, this.webHelpers);
         this.blurryImage = new BlurryImage(this);
         this.shout = new Shout(this);
+        this.woocommerce = new Woocommerce(this, this.webHelpers);
         this.$(this.window.document).ready(($) => {
             this.tooltips.initToolTips();
             this.webHelpers.checkCookieConsent();
@@ -71,6 +78,10 @@ export class CashTippr {
 
     public getWebHelpers() {
         return this.webHelpers;
+    }
+
+    public getPluginPaymentID(paymentControlsWrapper: JQuery) {
+        return paymentControlsWrapper.attr("id").replace(/^ct-btn-wrap-/, "");
     }
 
     // ################################################################
