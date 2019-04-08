@@ -5,7 +5,7 @@ Donate link: https://cashtippr.com/
 Requires at least: 4.7
 Tested up to: 5.1
 Requires PHP: 7.0
-Stable tag: 1.0.46
+Stable tag: 1.0.47
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 

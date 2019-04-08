@@ -34,7 +34,13 @@ export class BadgerWallet {
             this.cashtippr.$(".ct-input-amount").change((event) => {
                 this.updateButtonAmount(event.target);
             });
+            this.addEventListeners();
         });
+    }
+
+    public isLoggedIn() {
+        const wnd: any = this.cashtippr.window;
+        return typeof wnd.web4bch.bch.defaultAccount === "string" && wnd.web4bch.bch.defaultAccount;
     }
 
     // ################################################################
@@ -88,6 +94,15 @@ export class BadgerWallet {
             // better way would be to implement WP hooks to bypass cache for paid users (if provided by cache plugins)
             // to make it work with full-page caching we have to fetch params such as TXID via ajax either way
             this.cashtippr.window.location.reload(true);
+        });
+    }
+
+    protected addEventListeners() {
+        this.cashtippr.$(".badger-button").click((event) => {
+            if (this.isLoggedIn() === false) {
+                event.preventDefault();
+                this.cashtippr.window.alert(this.cashtippr.getConfig().badgerLocked);
+            }
         });
     }
 

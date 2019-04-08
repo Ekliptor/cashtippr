@@ -522,7 +522,9 @@ class Cashtippr {
 			'display_currency' => strtolower($this->settings->get('button_currency')),
 			'rate' => array(
 					'usd' => $this->settings->get('rate_usd_bch')
-			)
+			),
+			// TODO move localized strings into a separate .js file generated from PHP if we have more strings
+			'badgerLocked' => __('Your BadgerWallet is locked. Please open it in your browser toolbar and enter your password before sending money.', 'ekliptor'),
 		);
 		if ($this->settings->get('show_cookie_consent') === true && !isset($_COOKIE[static::CONSENT_COOKIE_NAME])) {
 			// TODO add option to only show this to specific countries

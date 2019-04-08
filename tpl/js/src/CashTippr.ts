@@ -16,6 +16,9 @@ export interface CashTipprConfig extends WebHelpersConfig {
     rate: BitcoinCashConversionRate;
     ajaxConfirm?: boolean;
     keepTransaction?: boolean; // keep the transaction in mysql so that plugin addons can use them after payment
+
+    // localizations
+    badgerLocked: string;
 }
 
 export interface AbstractPayment {
