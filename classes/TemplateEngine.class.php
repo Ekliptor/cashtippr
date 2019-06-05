@@ -41,6 +41,7 @@ class CTIP_TemplateEngine {
     public function showMetaboxAds($post = null, $args = array()) {
 		$adPlaceholder = __("The banner HTML or JavaScript code of your ad...", 'ekliptor');
 		$faucetPlaceholder = __("http://your-bitcoin-faucet ...", 'ekliptor');
+		$faucetTextPlaceholder = __("describe your faucet or referral link  ...", 'ekliptor');
     	include CASHTIPPR__PLUGIN_DIR . 'tpl/admin/metaboxAds.php';
     }
     
@@ -49,6 +50,7 @@ class CTIP_TemplateEngine {
 		$sessionPlaceholder = __("session name key...", 'ekliptor');
 		$memHostPlaceholder = __("the hostname of your memcached server...", 'ekliptor');
 		$memPortPlaceholder = __("the port of your memcached server...", 'ekliptor');
+		$apiPlaceholder = __("https://...", 'ekliptor');
     	include CASHTIPPR__PLUGIN_DIR . 'tpl/admin/metaboxAdvanced.php';
     }
     

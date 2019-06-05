@@ -231,3 +231,15 @@ body div#page div#content .ct-hidden-text {
 .ct-shout-time {
 	font-style: italic;
 }
+
+/* Woocommerce Addon */
+.ct-payment-select, .ct-play-option {
+	font-weight: bold;
+}
+ol.ct-payment-list li {
+	font-weight: bold;
+}
+
+.ct-button-text {
+	font-weight: bold;
+}

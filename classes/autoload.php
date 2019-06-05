@@ -1,6 +1,6 @@
 <?php
 namespace Ekliptor\Cashtippr;
-// Copyright @Ekliptor 2016-2018
+// Copyright @Ekliptor 2016-2019
 // based on: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader-examples.md
 // and Composer ClassLoader.php https://getcomposer.org/
 

@@ -49,21 +49,6 @@ export class QrCode {
         this.cashtippr.$(".ct-close-dialog").click((event) => {
             this.cashtippr.$(".dialog-" + txid).remove();
         });
-        this.cashtippr.$(".ct-copy-field").click((event) => {
-            const inputEl = this.cashtippr.$(event.target).parent().find("input[type='text']");
-            //let text = inputEl.val();
-            inputEl.select();
-            try {
-                this.cashtippr.window.document.execCommand("copy");
-            }
-            catch (err) { // try-catch shouldn't be needed except for some really old browsers
-            }
-            inputEl.select(); // ensure it's selected again for iOS devices to copy it manually. not working, remove?
-        });
-        this.cashtippr.$("#ct-qrcode-form input[type='text']").click((event) => {
-            this.cashtippr.$(event.target).select();
-        });
-        if (this.webHelpers.isAppleIOS() === true) // copy to clipboard button doesn't work there
-            this.cashtippr.$("#ct-qrcode-form .ct-copy-field").addClass("hidden");
+        this.cashtippr.addCopyInputListeners();
     }
 }

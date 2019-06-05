@@ -104,6 +104,14 @@ class CashtipprAdmin {
 			$notice = new CTIP_AdminNotice($this->tpl->getTemplate('adminNotice.php', $tplVars), 'error');
 			$this->tpl->addAdminNotices($notice);
 		}
+		if (empty($this->settings->get('xPub')) && class_exists('\\Ekliptor\\Cashtippr\\Woocommerce', false)) { // class gets initialized after admin_notices action
+			$tplVars = array(
+					'msg' => __('You must enter your xPub to use the Cashtippr WooCommerce Gateway.', 'ekliptor'),
+					'link' => admin_url() . 'admin.php?page=cashtippr'
+			);
+			$notice = new CTIP_AdminNotice($this->tpl->getTemplate('adminNotice.php', $tplVars), 'error');
+			$this->tpl->addAdminNotices($notice);
+		}
 		if (isset($_GET['notices'])) {
 			$notices = explode(',', $_GET['notices']);
 			foreach ($notices as $noticeData) {
@@ -116,7 +124,7 @@ class CashtipprAdmin {
 	}
 	
 	public function loadAssets() {
-		wp_enqueue_style( 'cashtippr-admin', plugins_url( 'tpl/css/cashtippr-admin.css', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' ) );
+		wp_enqueue_style( 'cashtippr-admin', plugins_url( 'tpl/css/cashtippr-admin.css', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' ), array(), CASHTIPPR_VERSION );
 		wp_enqueue_script( 'cashtippr-bundle', plugins_url( 'tpl/js/bundle.js', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' ), array(), CASHTIPPR_VERSION, false );
 		add_action( "load-{$this->pageHook}", array( $this, 'addMetaboxScripts' ) );
 	}

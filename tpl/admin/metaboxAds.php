@@ -34,7 +34,7 @@
 		<h4><?php esc_html_e( 'Bitcoin Faucet', 'ekliptor' ); ?></h4>
 		<?php 
 		$faucetInfo = $this->makeInfo(
-			__( 'Display a Bitcoin faucet address at the end of all posts containing a tip button (only for users who haven\'t donated anything yet). This is a great way to increase your revenue and spread crptocurrency adoption at the same time.', 'ekliptor' ),
+			__( 'Display a Bitcoin faucet address at the end of all posts containing a tip button (only for users who haven\'t donated anything yet). This is a great way to increase your revenue and spread crptocurrency adoption at the same time. You can also add a link to an exchange with your referral link.', 'ekliptor' ),
 			'',
 			false
 		);
@@ -53,5 +53,14 @@
 		?>
 		<p class="ct-input-wrap">
 			<input type="text" name="<?php $this->fieldName( 'faucet_bch' ); ?>" class="large-text" id="<?php $this->fieldId( 'faucet_bch' ); ?>" placeholder="<?php echo esc_attr( $faucetPlaceholder ); ?>" value="<?php echo esc_attr( $this->getFieldValue( 'faucet_bch' ) ); ?>" />
+		</p>
+		
+		<p>
+			<label for="<?php $this->fieldId( 'faucet_bch_text' ); ?>" class="ct-toblock">
+				<?php esc_html_e( 'Text on the link:', 'ekliptor' ); ?>
+			</label>
+		</p>
+		<p class="ct-input-wrap">
+			<input type="text" name="<?php $this->fieldName( 'faucet_bch_text' ); ?>" class="large-text" id="<?php $this->fieldId( 'faucet_bch_text' ); ?>" placeholder="<?php echo esc_attr( $faucetTextPlaceholder ); ?>" value="<?php echo esc_attr( $this->getFieldValue( 'faucet_bch_text' ) ); ?>" />
 		</p>
 		<?php 

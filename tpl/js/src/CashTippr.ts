@@ -87,6 +87,25 @@ export class CashTippr {
         return paymentControlsWrapper.attr("id").replace(/^ct-btn-wrap-/, "");
     }
 
+    public addCopyInputListeners() {
+        this.$(".ct-copy-field").click((event) => {
+            const inputEl = this.$(event.target).parent().find("input[type='text']");
+            //let text = inputEl.val();
+            inputEl.select();
+            try {
+                this.window.document.execCommand("copy");
+            }
+            catch (err) { // try-catch shouldn't be needed except for some really old browsers
+            }
+            inputEl.select(); // ensure it's selected again for iOS devices to copy it manually. not working, remove?
+        });
+        this.$("#ct-qrcode-form input[type='text']").click((event) => {
+            this.$(event.target).select();
+        });
+        if (this.webHelpers.isAppleIOS() === true) // copy to clipboard button doesn't work there
+            this.$("#ct-qrcode-form .ct-copy-field").addClass("hidden");
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 }

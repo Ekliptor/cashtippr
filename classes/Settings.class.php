@@ -353,6 +353,24 @@ class CTIP_Settings {
 					$newValue = $defaultSanitizer->sanitizeHtml($newValue);
 					return $newValue;
 				},
+				'faucet_bch' => function($newValue, string $settingName) use($tpl, $defaultSanitizer, $settings) {
+					$newValue = sanitize_text_field($newValue);
+					if (Cashtippr::isValidUrl($newValue) === false) {
+						$tplVars = array(
+								'msg' => __('Invalid Bitcoin faucet URL.', 'ekliptor')
+						);
+						$notice = new CTIP_AdminNotice($tpl->getTemplate('adminNotice.php', $tplVars), 'error');
+						$defaultSanitizer->addAdminNotices($notice);
+						return $settings->get($settingName); // keep the previous value
+					}
+					return $newValue;
+				},
+				'faucet_bch_text' => function($newValue, string $settingName) use($tpl, $defaultSanitizer, $settings) {
+					$newValue = sanitize_text_field($newValue);
+					if (empty($newValue))
+						return $settings->get($settingName); // keep the previous value
+					return $newValue;
+				},
 				'session_name' => function($newValue, string $settingName) use($tpl, $defaultSanitizer, $defaults, $settings) {
 					$newValue = sanitize_text_field($newValue);
 					if (preg_match("/^[a-z]+$/i", $newValue) !== 1) {
@@ -385,6 +403,18 @@ class CTIP_Settings {
 						$notice = new CTIP_AdminNotice($tpl->getTemplate('adminNotice.php', $tplVars), 'error');
 						$defaultSanitizer->addAdminNotices($notice);
 						return $defaults[$settingName]; // default is disabled
+					}
+					return $newValue;
+				},
+				'blockchain_rest_url' => function($newValue, string $settingName) use($tpl, $defaultSanitizer, $settings) {
+					$newValue = sanitize_text_field($newValue);
+					if (Cashtippr::isValidUrl($newValue) === false) {
+						$tplVars = array(
+								'msg' => __('Invalid API backend URL.', 'ekliptor')
+						);
+						$notice = new CTIP_AdminNotice($tpl->getTemplate('adminNotice.php', $tplVars), 'error');
+						$defaultSanitizer->addAdminNotices($notice);
+						return $settings->get($settingName); // keep the previous value
 					}
 					return $newValue;
 				}
@@ -490,8 +520,12 @@ class CTIP_Settings {
 				// Woocommerce
 				'blockchain_api' => 'BitcoinComRestApi',
 				'wait_confirmations' => 3,
-				'blockchain_rest_url' => 'https://rest.bitcoin.com/v2/', // TODO make a setting in main plugin?
-				'lastCheckedTransactions' => 0
+				'blockchain_rest_url' => 'https://rest.bitcoin.com/v2/',
+				'lastCheckedTransactions' => 0,
+				'xPub' => '',
+				'hdPathFormat' => 'm/0/%d',
+				'addressCount' => 0,
+				'lastAddress' => '', // used for debugging
 		);
 		$defaults = apply_filters('cashtippr_default_settings', $defaults);
 		if ($onUpdate === true) { // html form checkboxes are not present when false, so assume false for all on update

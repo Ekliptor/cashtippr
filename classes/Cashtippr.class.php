@@ -22,6 +22,7 @@ class Cashtippr {
 	const BCH_TX_FEE = array(
 			'USD' => 0.021 // use a higher value
 	);
+	const BCH_TX_FEE_TOLERANCE = 0.00075;
 	
 	/** @var Cashtippr */
 	private static $instance = null;
@@ -81,7 +82,7 @@ class Cashtippr {
 	public function init() {
 		$this->siteUrlParts = parse_url(site_url('/'));
 		//if (CashtipprAdmin::adminLoaded() === true) // if we are not on an admin page we don't include the source
-		if (class_exists('CashtipprAdmin') === true) // must be delayed until init call so that source is ready
+		if (class_exists('CashtipprAdmin', false) === true) // must be delayed until init call so that source is ready
 			$this->settings = new CTIP_Settings($this, CashtipprAdmin::getInstance($this));
 		else
 			$this->settings = new CTIP_Settings($this);
@@ -104,7 +105,7 @@ class Cashtippr {
 		add_action ( 'update_currency_rates', array (self::$instance, 'updateCurrencyRates' ) );
 		
 		if ($this->settings->get('rate_usd_bch') === 0.0)
-			add_action ( 'shutdown', array (self::$instance, 'updateCurrencyRates' ) );
+			add_action ( 'shutdown', array ($this, 'updateCurrencyRates' ) );
 		
 		//add_action( 'upgrader_process_complete', array (self::$instance, 'onUpgrade' ), 10, 2);	
 	}
@@ -317,6 +318,56 @@ class Cashtippr {
 	
 	public function setIncludedMoneybuttonScript(bool $included) {
 		$this->includedMoneybuttonScript = $included;
+	}
+	
+	/**
+	 * Generate a QR code for the payment
+	 * @param string $txid The internal MySQL transaction ID (not the on-chain TXID).
+	 * @param string $address The (1-time) BCH address created for this payment.
+	 * @param float $amount The amount to be received in display currency (USD).
+	 * @return string the public image URL of the QR code
+	 */
+	public function generateQrCodeForAddress(string $txid, string $address, float $amount): string {
+		$qrHash = hash('sha512', $txid);
+		$fileName = sprintf('data/temp/qr/%s.png', $qrHash);
+		$fileLocal = CASHTIPPR__PLUGIN_DIR . $fileName;
+		$fileUrl =  plugins_url( $fileName, CASHTIPPR__PLUGIN_DIR . 'slp-payments.php' );
+		if (file_exists($fileLocal) === true)
+			return $fileUrl; // use it from cache
+		
+		$amountBCH = $this->toAmountBCH($amount, $this->settings->get('button_currency'));
+		$codeContents = $this->createPaymentURI($address, $amountBCH);
+		\QR_Code\QR_Code::png($codeContents, $fileLocal);
+		return $fileUrl;
+	}
+	
+	/**
+	 * Generate a QR code for the payment
+	 * @param string $txid The internal MySQL transaction ID (not the on-chain TXID).
+	 * @return string the public image URL of the QR code
+	 */
+	public function generateQrCode(string $txid): string {
+		global $wpdb;
+		$qrHash = hash('sha512', $txid);
+		$fileName = sprintf('data/temp/qr/%s.png', $qrHash);
+		$fileLocal = CASHTIPPR__PLUGIN_DIR . $fileName;
+		$fileUrl =  plugins_url( $fileName, CASHTIPPR__PLUGIN_DIR . 'slp-payments.php' );
+		if (file_exists($fileLocal) === true)
+			return $fileUrl; // use it from cache
+		
+		$table = Cashtippr::getTableName('transactions');
+		$query = $wpdb->prepare("SELECT address, amount FROM $table WHERE txid = '%s'", array($txid));
+		$row = $wpdb->get_row($query);
+		if (empty($row))
+			return '';
+		return $this->generateQrCodeForAddress($txid, $row->address, $row->amount);
+	}
+	
+	public function createPaymentURI(string $address, float $amountBCH): string {
+		$address = preg_replace("/.+:/i", "", $address);
+		// we use the bitcoincash URI supported by new wallets
+		$uri = "bitcoincash:$address?amount=$amountBCH";
+		return $uri;
 	}
 	
 	public function toAmountBCH(float $amount, string $currency = ''): float {
@@ -645,6 +696,12 @@ class Cashtippr {
 	
 	public static function toSatoshis($bch) {
 		return floor($bch * 100000000);
+	}
+	
+	public static function isValidUrl(string $url): bool {
+		if (strlen($url) < 6 || preg_match("/^https?:\/\//", $url) !== 1 || strpos($url, '.') === false)
+			return false;
+		return true;
 	}
 	
 	public function getSiteUrl(array $query = array()) {

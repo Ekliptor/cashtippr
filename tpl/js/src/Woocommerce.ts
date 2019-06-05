@@ -13,6 +13,8 @@ export class Woocommerce {
         this.webHelpers = webHelpers;
         this.cashtippr.$(this.cashtippr.window.document).ready(($) => {
             //this.addPayButtonListener();
+            if (this.cashtippr.$("#ct-qrcode-form").length !== 0)
+                this.addPaymentFormEvents(this.cashtippr.$("#ct-qrcode-form").eq(0)); // the form after the order has been placed
         });
     }
 
@@ -36,5 +38,9 @@ export class Woocommerce {
             }
             // don't show an error message otherwise, because we likely just wait for more confirmations
         });
+    }
+
+    protected addPaymentFormEvents(paymentFormEl: JQuery) {
+        this.cashtippr.addCopyInputListeners();
     }
 }

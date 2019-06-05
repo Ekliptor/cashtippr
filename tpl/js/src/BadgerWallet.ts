@@ -11,6 +11,8 @@ export interface BadgerWalletPayment extends AbstractPayment {
 }
 
 export class BadgerWallet {
+    protected static readonly INSTALL_URL = "https://badger.bitcoin.com/";
+
     protected cashtippr: CashTippr;
     protected webHelpers: WebHelpers;
     protected globalCallbacks: boolean; // expose callback functions to window object because BadgerButton currently doesn't support functions on objects
@@ -38,9 +40,13 @@ export class BadgerWallet {
         });
     }
 
+    public isInstalled() {
+        return (this.cashtippr.window as any).web4bch !== undefined;
+    }
+
     public isLoggedIn() {
         const wnd: any = this.cashtippr.window;
-        return typeof wnd.web4bch.bch.defaultAccount === "string" && wnd.web4bch.bch.defaultAccount;
+        return typeof wnd.web4bch.bch.defaultAccount === "string" && wnd.web4bch.bch.defaultAccount !== "";
     }
 
     // ################################################################
@@ -98,11 +104,39 @@ export class BadgerWallet {
     }
 
     protected addEventListeners() {
-        this.cashtippr.$(".badger-button").click((event) => {
-            if (this.isLoggedIn() === false) {
+        this.cashtippr.$(".ct-badger-button").click((event) => {
+            if (this.isInstalled() === false)
+                this.cashtippr.window.open(BadgerWallet.INSTALL_URL, "", "");
+            else if (this.isLoggedIn() === false) {
                 event.preventDefault();
                 this.cashtippr.window.alert(this.cashtippr.getConfig().badgerLocked);
             }
+            else
+                this.sendPayment(event.target);
+        });
+    }
+
+    protected sendPayment(button: Element) {
+        const wnd: any = this.cashtippr.window;
+        let web4bch = wnd.web4bch;
+        web4bch = new wnd.Web4Bch(web4bch.currentProvider);
+
+        const btn = this.cashtippr.$(button);
+        let txParams: any = {
+            to: btn.attr("data-to"),
+            from: web4bch.bch.defaultAccount,
+            value: btn.attr("data-satoshis")
+        }
+
+        web4bch.bch.sendTransaction(txParams, (err, res) => {
+            if (err) {
+                this.cashtippr.window.console.log("Error sending payment", err);
+                return;
+            }
+            // call the corresponding inline-javascript for this button
+            let callback = btn.attr("data-success-callback");
+            if (callback && typeof this.cashtippr.window[callback] === "function")
+                this.cashtippr.window[callback](res); // res is just the txid as string
         });
     }
 

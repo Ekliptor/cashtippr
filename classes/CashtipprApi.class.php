@@ -173,7 +173,7 @@ class CashtipprApi {
 	
 	/**
 	 * Generate a QR code for the payment
-	 * @param string $txid
+	 * @param string $txid The internal MySQL transaction ID (not the on-chain TXID).
 	 * @param float $amount
 	 * @return string the public image URL of the QR code
 	 */

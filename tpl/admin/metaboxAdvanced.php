@@ -47,6 +47,18 @@
 		</p>
 		
 		<p>
+			<label for="<?php $this->fieldId( 'xPub' ); ?>" class="ct-toblock">
+				<?php esc_html_e( 'xPub:', 'ekliptor' ); ?>
+			</label>
+		</p>
+		<p class="ct-input-wrap">
+			<input type="text" name="<?php $this->fieldName( 'xPub' ); ?>" class="large-text" id="<?php $this->fieldId( 'xPub' ); ?>" placeholder="" value="<?php echo esc_attr( $this->getFieldValue( 'xPub' ) ); ?>" />
+		</p>
+		<?php 
+		$this->description( __( 'The extended public key (xPub) to create addresses from. In Electron Cash this is called "Master Public Key" and can be found under Wallet -> Information.', 'ekliptor' ) );
+		?>
+		
+		<p>
 			<label for="<?php $this->fieldId( 'session_name' ); ?>" class="ct-toblock">
 				<?php esc_html_e( 'Browser session name:', 'ekliptor' ); ?>
 			</label>
@@ -88,12 +100,26 @@
 			<input type="text" name="<?php $this->fieldName( 'memcached_host' ); ?>" class="large-text" id="<?php $this->fieldId( 'memcached_host' ); ?>" placeholder="<?php echo esc_attr( $memHostPlaceholder ); ?>" value="<?php echo esc_attr( $this->getFieldValue( 'memcached_host' ) ); ?>" />
 		</p>
 		<p>
-			<label for="<?php $this->fieldId( 'memcached_host' ); ?>" class="ct-toblock">
+			<label for="<?php $this->fieldId( 'memcached_port' ); ?>" class="ct-toblock">
 				<?php esc_html_e( 'Port', 'ekliptor' ); ?>
 			</label>
 		</p>
 		<p class="ct-input-wrap">
 			<input type="text" name="<?php $this->fieldName( 'memcached_port' ); ?>" class="large-text" id="<?php $this->fieldId( 'memcached_port' ); ?>" placeholder="<?php echo esc_attr( $memPortPlaceholder ); ?>" value="<?php echo esc_attr( $this->getFieldValue( 'memcached_port' ) ); ?>" />
+		</p>
+		<hr>
+		
+		<h4><?php esc_html_e( 'API Backend', 'ekliptor' ); ?></h4>
+		<?php
+		$this->description( __( 'The REST API backend you want to use. This backend is open source so you may run your own: https://github.com/Bitcoin-com/rest.bitcoin.com', 'ekliptor' ) );
+		?>
+		<p>
+			<label for="<?php $this->fieldId( 'blockchain_rest_url' ); ?>" class="ct-toblock">
+				<?php esc_html_e( 'URL', 'ekliptor' ); ?>
+			</label>
+		</p>
+		<p class="ct-input-wrap">
+			<input type="text" name="<?php $this->fieldName( 'blockchain_rest_url' ); ?>" class="large-text" id="<?php $this->fieldId( 'blockchain_rest_url' ); ?>" placeholder="<?php echo esc_attr( $apiPlaceholder ); ?>" value="<?php echo esc_attr( $this->getFieldValue( 'blockchain_rest_url' ) ); ?>" />
 		</p>
 		<?php 
 		
