@@ -34,5 +34,4 @@ if (!defined('ABSPATH'))
 		});
 	}
 </script>
-<script type="text/javascript" src="https://developer.bitcoin.com/badger/badgerButton-1.0.1.js"></script>
 <?php endif;?>

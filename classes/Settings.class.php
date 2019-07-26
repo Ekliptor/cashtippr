@@ -77,6 +77,11 @@ class CTIP_Settings {
 					$settings[$key] = $allSettings[$key]; // keep the previous value
 				else
 					$settings[$key] = $defaults[$key]; // add the default value
+				
+				if ($key === 'xPub' && $settings[$key] !== $allSettings[$key]) {
+					// reset the hdPath counter (otherwise electron cash needs to scan the full history for the TX to show up
+					$settings['addressCount'] = 0;
+				}
 			}
 			else
 				$settings[$key] = call_user_func($sanitizer[$key], $settings[$key], $key);
@@ -486,6 +491,8 @@ class CTIP_Settings {
 				'use_memcached' => false,
 				'memcached_host' => '127.0.0.1',
 				'memcached_port' => 11211,
+				'paymentCommaDigits' => 8,
+				'tokenDigits' => 8, // for easier compatibility when merging from SLP plugin
 				
 				// stats
 				'tips' => 0,
@@ -523,7 +530,8 @@ class CTIP_Settings {
 				'blockchain_rest_url' => 'https://rest.bitcoin.com/v2/',
 				'lastCheckedTransactions' => 0,
 				'xPub' => '',
-				'hdPathFormat' => 'm/0/%d',
+				//'hdPathFormat' => 'm/0/%d',
+				'hdPathFormat' => '0/%d',
 				'addressCount' => 0,
 				'lastAddress' => '', // used for debugging
 		);

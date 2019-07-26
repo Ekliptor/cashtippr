@@ -15,6 +15,7 @@ export class WebHelpers {
     public readonly $: JQueryStatic;
 
     protected config: WebHelpersConfig;
+    protected cssSelectors: string[] = [];
 
     constructor(window: Window, $: JQueryStatic, config: WebHelpersConfig) {
         this.window = window;
@@ -169,6 +170,53 @@ export class WebHelpers {
     public isAppleIOS() {
         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
         return /iPad|iPhone|iPod/.test(this.window.navigator.userAgent) && !(this.window as any).MSStream;
+    }
+
+    public getAllCssSelectors(cached = true): string[] {
+        if (cached === true && this.cssSelectors.length !== 0)
+            return this.cssSelectors;
+
+        this.cssSelectors = [];
+        try {
+            const originRegex = new RegExp("^" + this.escapeRegex(this.window.document.location.origin), "i");
+            for (let i = 0; i < this.window.document.styleSheets.length; i++)
+            {
+                const sheet: any = this.window.document.styleSheets[i];
+                if (sheet.href && originRegex.test(sheet.href) === false)
+                    continue; // can't access it
+                if (sheet.rules) {
+                    for (let u = 0; u < sheet.rules.length; u++)
+                    {
+                        if (sheet.rules[u].selectorText)
+                            this.cssSelectors.push(sheet.rules[u].selectorText);
+                    }
+                }
+                if (sheet.imports) {
+                    for (let x = 0; x < sheet.imports.length; x++)
+                    {
+                        for (let u = 0; u < sheet.imports[x].rules.length; u++)
+                        {
+                            if (sheet.imports[x].rules[u].selectorText)
+                                this.cssSelectors.push(sheet.imports[x].rules[u].selectorText);
+                        }
+                    }
+                }
+            }
+        }
+        catch (err) {
+            this.window.console.error("Error getting CSS selectors", err);
+        }
+        return this.cssSelectors;
+    }
+
+    public isExistingCssSelector(selector: string): boolean {
+        const selectors = this.getAllCssSelectors();
+        for (let i = 0; i < selectors.length; i++)
+        {
+            if (selectors[i] === selector) // css props case insensitive, class names in HTML case sensitive
+                return true;
+        }
+        return false;
     }
 
     // ################################################################

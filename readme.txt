@@ -5,7 +5,7 @@ Donate link: https://cashtippr.com/
 Requires at least: 4.7
 Tested up to: 5.2
 Requires PHP: 7.1
-Stable tag: 1.0.48
+Stable tag: 1.1.6
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -44,7 +44,8 @@ Check the demo at [CashTippr.com](https://cashtippr.com/ "CashtTippr") and send 
 * Memcached support for high traffic sites (>50k users daily)
 
 
-This plugin loads code API code from bitcoin.com to interact with BadgerWallet.
+This plugin loads code API code from bitcoin.com to interact with BadgerWallet - a browser extension for BCH payments.
+This does not require an account or signup at their service. Their privacy policy is available here: https://www.bitcoin.com/privacy-policy/
 
 
 == Installation ==
@@ -61,6 +62,9 @@ Yes this plugin is completely free.
 4. Admin Area 3
 
 == Changelog ==
+= 1.1.0 =
+* added CashP library support for BCH payment address generation using xPub https://github.com/Ekliptor/cashp
+
 = 1.0.40 =
 * replaced MoneyButton with BadgerWallet
 

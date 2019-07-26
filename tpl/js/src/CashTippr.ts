@@ -17,8 +17,14 @@ export interface CashTipprConfig extends WebHelpersConfig {
     ajaxConfirm?: boolean;
     keepTransaction?: boolean; // keep the transaction in mysql so that plugin addons can use them after payment
 
+    // present after order is placed
+    orderID?: number;
+    nonce?: string;
+    checkPaymentIntervalSec: number;
+
     // localizations
     badgerLocked: string;
+    paidTxt: string;
 }
 
 export interface AbstractPayment {

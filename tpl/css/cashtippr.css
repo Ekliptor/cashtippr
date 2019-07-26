@@ -1,4 +1,10 @@
 
+.ct-center {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
 .ct-button {
 }
 .ct-btn-wrap-top {
@@ -127,7 +133,7 @@ body div#page div#content .ct-hidden-text {
 }
 
 .ct-textfield-group input {
-	display: inline-block;
+	display: inline-block!important;
 }
 .ct-textfield-group input[type="text"] {
 	width: 380px;
@@ -242,4 +248,32 @@ ol.ct-payment-list li {
 
 .ct-button-text {
 	font-weight: bold;
+}
+.ct-manual-payment {
+	display: block;
+	margin-top: 10px;
+}
+
+#ct-payment-status-container {
+	display: block;
+	margin-top: 2em;
+	margin-bottom: 3em;
+}
+#ct-payment-pending-icon {
+	max-width: 128px;
+	max-height: 128px;
+}
+/* Links with button style */
+a.ct-button-link {
+	display: inline-block;
+	padding: 12px 24px;
+	border: 0;
+	font-weight: bold;
+	letter-spacing: 0.0625em;
+	background: #000000;
+	color: #fff;
+}
+a.ct-button-link:hover, a.sct-button-link:focus, a.ct-button-link:active, a.ct-button-link:visited {
+	background: #000000;
+	color: #fff!important;
 }

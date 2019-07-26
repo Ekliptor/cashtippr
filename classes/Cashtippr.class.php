@@ -23,6 +23,9 @@ class Cashtippr {
 			'USD' => 0.021 // use a higher value
 	);
 	const BCH_TX_FEE_TOLERANCE = 0.00075;
+	const BCH_DUST_LIMIT_SAT = 546; // https://github.com/Bitcoin-ABC/bitcoin-abc/blob/9bbaacc1e0d86a7a18352068b93ca0ccab45f2ea/src/test/transaction_tests.cpp#L546
+	const BADGER_WALLET_JS = "https://developer.bitcoin.com/badger/badgerButton-1.0.1.js";
+	const MAX_AGE_TX_ACCEPT = 15*10; // max 15 blocks older
 	
 	/** @var Cashtippr */
 	private static $instance = null;
@@ -366,7 +369,7 @@ class Cashtippr {
 	public function createPaymentURI(string $address, float $amountBCH): string {
 		$address = preg_replace("/.+:/i", "", $address);
 		// we use the bitcoincash URI supported by new wallets
-		$uri = "bitcoincash:$address?amount=$amountBCH";
+		$uri = sprintf("bitcoincash:%s?amount=%s", $address, number_format($amountBCH, $this->settings->get('paymentCommaDigits')));
 		return $uri;
 	}
 	
@@ -470,7 +473,9 @@ class Cashtippr {
 		}
 		$docHtml = ob_get_contents();
 		ob_end_clean();
-		$this->setIncludedMoneybuttonScript($includedMoneybuttonScript);
+		//$this->setIncludedMoneybuttonScript($includedMoneybuttonScript);
+		$this->setIncludedMoneybuttonScript(true);
+		wp_enqueue_script( 'badger-wallet', Cashtippr::BADGER_WALLET_JS, array(), CASHTIPPR_VERSION, true );
 		return $docHtml;
 	}
 	
@@ -599,6 +604,10 @@ class Cashtippr {
 	
 	public function getButtonTpl(): ButtonTemplates {
 		return $this->buttonTpl;
+	}
+	
+	public function getLoadingImage(): string {
+		return $this->loadingImage;
 	}
 	
 	public function cleanupTransactions() {

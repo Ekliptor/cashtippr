@@ -6,6 +6,9 @@
   "private": false,
   "author": "Ekliptor",
   "license": "GPL",
+  "scripts": {
+    "watch": "webpack --progress --colors --watch"
+  },
   "dependencies": {
   },
   "devDependencies": {
