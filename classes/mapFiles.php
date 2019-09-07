@@ -6,5 +6,5 @@ $srcDir = dirname(__FILE__) . '/src/';
 // It must still be unique!
 return array(
 	'phpqrcode/src/helpers/constants.php' => $srcDir . 'phpqrcode/src/helpers/constants.php',
-	'phpqrcode/src/helpers/functions.php' => $srcDir . 'phpqrcode/src/helpers/functions.php'
+	'phpqrcode/src/helpers/functions.php' => $srcDir . 'phpqrcode/src/helpers/functions.php',
 );

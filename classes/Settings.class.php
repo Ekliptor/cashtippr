@@ -81,6 +81,7 @@ class CTIP_Settings {
 				if ($key === 'xPub' && $settings[$key] !== $allSettings[$key]) {
 					// reset the hdPath counter (otherwise electron cash needs to scan the full history for the TX to show up
 					$settings['addressCount'] = 0;
+					Cashtippr::scheduleUnsuedAddressSearch(); // TODO move this out of hear by creating hooks ct_on_settings_update_$name
 				}
 			}
 			else
@@ -532,6 +533,7 @@ class CTIP_Settings {
 				'xPub' => '',
 				//'hdPathFormat' => 'm/0/%d',
 				'hdPathFormat' => '0/%d',
+				'skipUsedAddressCount' => 10,
 				'addressCount' => 0,
 				'lastAddress' => '', // used for debugging
 		);

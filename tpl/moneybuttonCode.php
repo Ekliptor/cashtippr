@@ -12,7 +12,7 @@ if (!defined('ABSPATH'))
     <?php endif;?> 
 	<div class="ct-button-wrap">
       <button
-        class="ct-badger-button"
+        class="ct-badger-button button"
         data-to="<?php echo esc_attr($btnConf['recAddress']);?>"
         data-satoshis="<?php echo $btnConf['sats'];?>"
         data-success-callback="onBadgerPaymentG_<?php echo $btnConf['txid'];?>"

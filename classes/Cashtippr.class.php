@@ -1,5 +1,7 @@
 <?php
 use Ekliptor\Cashtippr\DatabaseMigration;
+use Ekliptor\CashP\BlockchainApi\AbstractBlockchainApi;
+use Ekliptor\CashP\BlockchainApi\Http\WordpressHttpAgent;
 
 require_once CASHTIPPR__PLUGIN_DIR . 'classes/autoload.php';
 require_once CASHTIPPR__PLUGIN_DIR . 'classes/Settings.class.php';
@@ -106,6 +108,7 @@ class Cashtippr {
 		// Crons
 		add_action ( 'cleanup_transactions', array (self::$instance, 'cleanupTransactions' ) );
 		add_action ( 'update_currency_rates', array (self::$instance, 'updateCurrencyRates' ) );
+		add_action ( 'ct_unused_address_search', array (self::$instance, 'searchUnusedAddress' ) );
 		
 		if ($this->settings->get('rate_usd_bch') === 0.0)
 			add_action ( 'shutdown', array ($this, 'updateCurrencyRates' ) );
@@ -328,9 +331,10 @@ class Cashtippr {
 	 * @param string $txid The internal MySQL transaction ID (not the on-chain TXID).
 	 * @param string $address The (1-time) BCH address created for this payment.
 	 * @param float $amount The amount to be received in display currency (USD).
+	 * @param float $amountBCH (optional) The amount in BCH to use. Use this for remaining amounts.
 	 * @return string the public image URL of the QR code
 	 */
-	public function generateQrCodeForAddress(string $txid, string $address, float $amount): string {
+	public function generateQrCodeForAddress(string $txid, string $address, float $amount, float $amountBCH = 0.0): string {
 		$qrHash = hash('sha512', $txid);
 		$fileName = sprintf('data/temp/qr/%s.png', $qrHash);
 		$fileLocal = CASHTIPPR__PLUGIN_DIR . $fileName;
@@ -338,7 +342,8 @@ class Cashtippr {
 		if (file_exists($fileLocal) === true)
 			return $fileUrl; // use it from cache
 		
-		$amountBCH = $this->toAmountBCH($amount, $this->settings->get('button_currency'));
+		if ($amountBCH === 0.0)
+			$amountBCH = $this->toAmountBCH($amount, $this->settings->get('button_currency'));
 		$codeContents = $this->createPaymentURI($address, $amountBCH);
 		\QR_Code\QR_Code::png($codeContents, $fileLocal);
 		return $fileUrl;
@@ -579,6 +584,7 @@ class Cashtippr {
 			'rate' => array(
 					'usd' => $this->settings->get('rate_usd_bch')
 			),
+			'paymentCommaDigits' => $this->settings->get('paymentCommaDigits'),
 			// TODO move localized strings into a separate .js file generated from PHP if we have more strings
 			'badgerLocked' => __('Your BadgerWallet is locked. Please open it in your browser toolbar and enter your password before sending money.', 'ekliptor'),
 		);
@@ -648,6 +654,44 @@ class Cashtippr {
 		}
 		if ($json->price > 0.0)
 			$this->settings->set('rate_usd_bch', $json->price / 100.0); // receiced in USD cents
+	}
+	
+	public static function scheduleUnsuedAddressSearch($offsetSec = 0): int {
+		$scheduleTime = time() + $offsetSec;
+		wp_schedule_single_event($scheduleTime, 'ct_unused_address_search');
+		return $scheduleTime;
+	}
+	
+	public function searchUnusedAddress() {
+		$scheduleTime = static::scheduleUnsuedAddressSearch(5*MINUTE_IN_SECONDS); // schedule it again in case it gets aborted
+		$xPub = $this->settings->get('xPub');
+		$hdPathFormat = $this->settings->get('hdPathFormat');
+		$nextCount = $this->settings->get('addressCount') + 1; // in live mode we also increase +1 when creating the 1st address
+		$skipCount = $this->settings->get('skipUsedAddressCount');
+		if ($skipCount < 1)
+			$skipCount = 1;
+		$blockchainApi = $this->createBlockchainApiInstance();
+		$hasExistingTransactions = false;
+		while ($hasExistingTransactions === false)
+		{
+			// make sure we don't timeout
+			// WP cron already calls ignore_user_abort
+			set_time_limit(60);
+			$address = $blockchainApi->createNewAddress($xPub, $nextCount, $hdPathFormat);
+			if (!$address || !$address->cashAddress) { // try again later
+				static::notifyError("Failed to create address when finding unused address", "");
+				return;
+			}
+			$balance = $blockchainApi->getAddressBalance($address->cashAddress);
+			if ($balance > 0.0)
+				$nextCount += $skipCount;
+			else {
+				$this->settings->set('addressCount', $nextCount);
+				break; // we have succeeded
+			}
+		}
+		//static::notifyError("found empty address $nextCount", $address);
+		wp_unschedule_event($scheduleTime, 'ct_unused_address_search'); // done successfully. remove it from schedule
 	}
 	
 	/*
@@ -730,6 +774,18 @@ class Cashtippr {
 	public function getCurrentUrl() {
 		global $wp;
 		return home_url( add_query_arg( array(), $wp->request ) );
+	}
+	
+	public function createBlockchainApiInstance(): AbstractBlockchainApi {
+		$blockchainApi = AbstractBlockchainApi::getInstance($this->settings->get('blockchain_api'), $this->settings->get('blockchain_rest_url'));
+		AbstractBlockchainApi::setLogger(function (string $subject, $error, $data = null) {
+			\Cashtippr::notifyErrorExt("BlockChain API: " . $subject, $error, $data);
+		});
+		$httpAgent = new WordpressHttpAgent(function (string $subject, $error, $data = null) {
+			\Cashtippr::notifyErrorExt("HTTP: " . $subject, $error, $data);
+		});
+		$blockchainApi->setHttpAgent($httpAgent);
+		return $blockchainApi;
 	}
 	
 	public function getReceiverAddress($attrs = array()) {

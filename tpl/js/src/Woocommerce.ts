@@ -1,5 +1,6 @@
 import {AbstractPayment, CashTippr} from "./CashTippr";
 import {WebHelpers} from "./WebHelpers";
+import {Order} from "./structs/Order";
 
 /**
  * Class to interact with the Woocommerce store of a WordPress installation.
@@ -14,8 +15,9 @@ export class Woocommerce {
         this.cashtippr.$(this.cashtippr.window.document).ready(($) => {
             const config = this.cashtippr.getConfig();
             this.addButtonLinkClass();
+            // check payment stastus sooner on 1st page load to update remaining amount
             if (config.checkPaymentIntervalSec > 0)
-                setTimeout(this.checkPaymentStatus.bind(this, true), config.checkPaymentIntervalSec*1000);
+                setTimeout(this.checkPaymentStatus.bind(this, true), /*config.checkPaymentIntervalSec*/1*1000);
             //this.addPayButtonListener();
 
             if (this.cashtippr.$("#ct-qrcode-form").length !== 0)
@@ -58,19 +60,44 @@ export class Woocommerce {
             oid: config.orderID
         }
         this.webHelpers.getApi("/wp-json/cashtippr-wc/v1/order-status", params, (data) => {
+            if (config.checkPaymentIntervalSec > 0) // TODO abort checking after x minutes?
+                setTimeout(this.checkPaymentStatus.bind(this, true), config.checkPaymentIntervalSec*1000);  // always repeat the check even if there was an error
             if (data.error === true) {
                 this.cashtippr.window.console.error("Error checking BCH payment status: %s", data.errorMsg);
                 return;
             }
             if (data.data && data.data.length >= 1) {
-                if (data.data[0].status === "paid") {
+                const order: Order = Object.assign(new Order(), data.data[0]);
+                if (order.status === "paid") {
                     this.showPaymentReceived();
                     return;
                 }
+                else if (order.bchAmountReceived > 0.0) {
+                    this.showPartialPayment(order);
+                    return;
+                }
             }
-            if (config.checkPaymentIntervalSec > 0) // TODO abort checking after x minutes?
-                setTimeout(this.checkPaymentStatus.bind(this, true), config.checkPaymentIntervalSec*1000);
         });
+    }
+
+    protected showPartialPayment(order: Order) {
+        const numDecimals = this.cashtippr.getConfig().paymentCommaDigits;
+        const remainingAmount = order.calculateRemaningAmount().toFixed(numDecimals);
+        if (this.cashtippr.$("#ct-pay-amount-txt").text() === remainingAmount)
+            return;
+        this.cashtippr.$("#ct-pay-amount-txt").text(remainingAmount);
+        this.cashtippr.$("#ct-payment-remaining").fadeIn("slow");
+
+        // update payment amount in URI and QR code
+        this.cashtippr.$("#ct-qr-code-image").attr("src", order.qrcode);
+        this.cashtippr.$("#ct-address").val(order.uri);
+        this.cashtippr.$("#ct-pay-app").attr("href", order.uri);
+        this.cashtippr.$(".ct-badger-button").attr("data-satoshis", order.calculateRemaningAmount());
+    }
+
+    protected showPaymentReceived() {
+        this.cashtippr.$("#ct-payment-status").text(this.cashtippr.getConfig().paidTxt);
+        this.cashtippr.$("#ct-payment-pending, #ct-pay-instructions, .ct-payment-option").fadeOut("slow");
     }
 
     protected addButtonLinkClass() {
@@ -84,10 +111,5 @@ export class Woocommerce {
             buttons.addClass("button");
         else
             buttons.addClass("ct-button-link");
-    }
-
-    protected showPaymentReceived() {
-        this.cashtippr.$("#ct-payment-status").text(this.cashtippr.getConfig().paidTxt);
-        this.cashtippr.$("#ct-payment-pending").remove();
     }
 }

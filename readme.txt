@@ -5,7 +5,7 @@ Donate link: https://cashtippr.com/
 Requires at least: 4.7
 Tested up to: 5.2
 Requires PHP: 7.1
-Stable tag: 1.1.6
+Stable tag: 1.1.9
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -62,6 +62,13 @@ Yes this plugin is completely free.
 4. Admin Area 3
 
 == Changelog ==
+= 1.1.9 =
+* find first empty-balance address when changing xPub using WP cron
+
+= 1.1.8 =
+* improved payment page UI
+* improved REST API stability for payment checks
+
 = 1.1.0 =
 * added CashP library support for BCH payment address generation using xPub https://github.com/Ekliptor/cashp
 

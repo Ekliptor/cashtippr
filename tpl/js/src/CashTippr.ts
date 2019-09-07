@@ -16,6 +16,7 @@ export interface CashTipprConfig extends WebHelpersConfig {
     rate: BitcoinCashConversionRate;
     ajaxConfirm?: boolean;
     keepTransaction?: boolean; // keep the transaction in mysql so that plugin addons can use them after payment
+    paymentCommaDigits: number;
 
     // present after order is placed
     orderID?: number;
@@ -95,6 +96,7 @@ export class CashTippr {
 
     public addCopyInputListeners() {
         this.$(".ct-copy-field").click((event) => {
+            event.preventDefault();
             const inputEl = this.$(event.target).parent().find("input[type='text']");
             //let text = inputEl.val();
             inputEl.select();
