@@ -1,3 +1,6 @@
+<?php
+use Ekliptor\Wordpress\TemplateEngine;
+?>
 		<h4><?php esc_html_e( 'Banners or Popups', 'ekliptor' ); ?></h4>
 		<?php 
 		$adsInfo = $this->makeInfo(
@@ -28,6 +31,60 @@
 		</p>
 		<?php 
 		$this->description( __( 'This code will be inserted at the top of all posts for users who have made 0 donations so far.', 'ekliptor' ) );
+		?>
+		<hr>
+		
+		<h4><?php esc_html_e( 'AdBlock Detection', 'ekliptor' ); ?></h4>
+		<?php 
+		$adblockInfo = $this->makeInfo(
+			__( 'Detect AdBlock usage. This will load some additional JavaScript and fire events in PHP and JavaScript, see developer docs for details: https://cashtippr.com/developer-docs/', 'ekliptor' ),
+			'',
+			false
+		);
+		$adblockDisableInfo = $this->makeInfo(
+			__( 'Disable the page for AdBlock users if they did not donate anything yet. The page will then show your custom WordPress page chosen below. The page will stay disabled until a donation/tip is made. Make sure to include a tip button shortcode on this page!', 'ekliptor' ),
+			'',
+			false
+		);
+		
+		$adblockPage = $this->makeSelect('adblock_page', __('AdBlock Page:', 'ekliptor'), CTIP_TemplateEngine::getPageNames());
+		
+		$this->wrapFields(
+			array(
+				$this->makeCheckbox(
+					'detect_adblock',
+					esc_html__( 'Detect AdBlock', 'ekliptor' ) . ' ' . $adblockInfo,
+					'',
+					false
+				),
+				$this->makeCheckbox(
+					'adblockDisable',
+					esc_html__( 'Disable page for AdBlock users', 'ekliptor' ) . ' ' . $adblockDisableInfo,
+					'',
+					false
+				),
+				$adblockPage,
+			),
+			true
+		);
+		
+		$adblockNoConflictInfo = $this->makeInfo(
+			__( 'This will prevent false positives (AdBlock detection when the visitor has no adblock installed) that may happen if other plugins inspect AdBlock as well. If enabled AdBlock detection will be less strict. It is recommended to only enable this if you run into problems with other plugins.', 'ekliptor' ),
+			'',
+			false
+		);
+		
+		$this->wrapFields(
+			array(
+				$this->makeCheckbox(
+					'adblockNoConflict',
+					esc_html__( 'Enable no-conflict mode', 'ekliptor' ) . ' ' . $adblockNoConflictInfo,
+					'',
+					false
+				),
+			),
+			true
+		);
 		?>
 		<hr>
 		

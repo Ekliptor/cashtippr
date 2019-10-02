@@ -1,17 +1,15 @@
 import {AbstractPayment, CashTippr} from "./CashTippr";
 import {WebHelpers} from "./WebHelpers";
 import {Order} from "./structs/Order";
+import {AbstractModule} from "./AbstractModule";
 
 /**
  * Class to interact with the Woocommerce store of a WordPress installation.
  */
-export class Woocommerce {
-    protected cashtippr: CashTippr;
-    protected webHelpers: WebHelpers;
+export class Woocommerce extends AbstractModule {
 
     constructor(cashtippr: CashTippr, webHelpers: WebHelpers) {
-        this.cashtippr = cashtippr;
-        this.webHelpers = webHelpers;
+        super(cashtippr, webHelpers);
         this.cashtippr.$(this.cashtippr.window.document).ready(($) => {
             const config = this.cashtippr.getConfig();
             this.addButtonLinkClass();

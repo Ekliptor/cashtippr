@@ -1,16 +1,17 @@
 import {AbstractPayment, CashTippr} from "./CashTippr";
+import {WebHelpers} from "./WebHelpers";
+import {AbstractModule} from "./AbstractModule";
 
 /**
  * The class for displaying the shout addon.
  * We bundle it together with all our JavaScript instead of with the addon because
  * a 2nd JS WebPack project would create unnecessary dependency + bootstrap overhead.
  */
-export class Shout {
-    protected cashtippr: CashTippr;
+export class Shout extends AbstractModule {
     protected scheduleUpdateTimerID = 0;
 
-    constructor(cashtippr: CashTippr) {
-        this.cashtippr = cashtippr;
+    constructor(cashtippr: CashTippr, webHelpers: WebHelpers) {
+        super(cashtippr, webHelpers);
         // TODO implement events this class (and other addons) can listen to so that we don't have to call functions in here directly
         this.cashtippr.$(this.cashtippr.window.document).ready(($) => {
             if (this.cashtippr.$(".ct-message").length !== 0) {

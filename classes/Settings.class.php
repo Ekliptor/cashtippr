@@ -77,16 +77,15 @@ class CTIP_Settings {
 					$settings[$key] = $allSettings[$key]; // keep the previous value
 				else
 					$settings[$key] = $defaults[$key]; // add the default value
-				
-				if ($key === 'xPub' && $settings[$key] !== $allSettings[$key]) {
-					// reset the hdPath counter (otherwise electron cash needs to scan the full history for the TX to show up
-					$settings['addressCount'] = 0;
-					Cashtippr::scheduleUnsuedAddressSearch(); // TODO move this out of hear by creating hooks ct_on_settings_update_$name
-				}
 			}
 			else
 				$settings[$key] = call_user_func($sanitizer[$key], $settings[$key], $key);
+			
+			// run the filter if the setting value changed
+			if ($settings[$key] !== $allSettings[$key])
+				$settings[$key] = apply_filters("cashtippr_settings_change_$key", $settings[$key], $allSettings[$key], $key, $settings); // (newVal, oldVal, key, allSettings)
 		}
+		$settings = apply_filters('cashtippr_settings_update', $settings);
 		update_option($this->settingsField, $settings);
 		$this->options = $settings;
 		return $settings;
@@ -423,7 +422,11 @@ class CTIP_Settings {
 						return $settings->get($settingName); // keep the previous value
 					}
 					return $newValue;
-				}
+				},
+				'custom_css' => function($newValue, string $settingName) use($tpl, $defaultSanitizer) {
+					$newValue = $defaultSanitizer->formatStringMultiLine($newValue, $settingName);
+					return $newValue;
+				},
 		);
 		$sanitizer = apply_filters('cashtippr_settings_sanitizer', $sanitizer, $defaultSanitizer, $tpl, $defaults, $this);
 		foreach ($defaults as $key => $value) {
@@ -483,6 +486,12 @@ class CTIP_Settings {
 				'enable_faucet' => false,
 				'faucet_bch' => 'https://free.bitcoin.com/',
 				'faucet_bch_text' => __('Click here to get your first free Bitcoin Cash (BCH Facuet)', 'ekliptor'),
+				'detect_adblock' => false,
+				'adblockDisable' => false,
+				'adblock_page' => '',
+				'adblockNoConflict' => false,
+				'adFrameBaitFile' => '', // the full path to the file on local disk
+				'adFrameBaitUrl' => '',
 				
 				// Advanced
 				'show_search_engines' => true,
@@ -494,6 +503,9 @@ class CTIP_Settings {
 				'memcached_port' => 11211,
 				'paymentCommaDigits' => 8,
 				'tokenDigits' => 8, // for easier compatibility when merging from SLP plugin
+				
+				// Styling
+				'custom_css' => '',
 				
 				// stats
 				'tips' => 0,

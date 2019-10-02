@@ -140,7 +140,7 @@ body div#page div#content .ct-hidden-text {
 }
 
 /* disable page */
-#ct-modal-qrcode-dialog-tpl {
+#ct-modal-qrcode-dialog-tpl, #ct-modal-adblock-dialog-tpl {
 	display: none;
 }
 #ct-modal-background {
@@ -188,6 +188,7 @@ body div#page div#content .ct-hidden-text {
 .ct-qr-code {
 	margin: 0px 0px 0px 0px;
 }
+
 @media(max-width:992px) {
 	.ct-modal {
 		width: 360px;

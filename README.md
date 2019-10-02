@@ -7,6 +7,7 @@ It is written in PHP7 using the latest WordPress APIs and hooks.
 * earn tips from your content
 * add tip buttons for voluntary donations or
 * hide parts of your posts to require users to tip
+* AdBlock detection: show custom message to AdBlock users
 * 0 coding skills required for webmasters
 * extensibility: check out the [developer docs](https://cashtippr.com/developer-docs/) to integrate this plugin into your own plugin/theme
 

@@ -7,6 +7,8 @@ class CTIP_TemplateEngine {
 	protected static  $dateFormat = '';
 	/** @var string */
 	protected static $timeFormat = '';
+	/** @var array An associative array of all WP pages with ID as key and title as value. */
+	protected static $pageNames = null;
 	
 	protected $adminNotices = array();
 	
@@ -52,6 +54,11 @@ class CTIP_TemplateEngine {
 		$memPortPlaceholder = __("the port of your memcached server...", 'ekliptor');
 		$apiPlaceholder = __("https://...", 'ekliptor');
     	include CASHTIPPR__PLUGIN_DIR . 'tpl/admin/metaboxAdvanced.php';
+    }
+    
+    public function showStylingSettings($post = null, $args = array()) {
+    	$cssPlaceholder = __("your custom CSS...\r\n.ct-button {text-align: center;}", 'ekliptor');
+    	include CASHTIPPR__PLUGIN_DIR . 'tpl/admin/metaboxStyling.php';
     }
     
     public function showMetaboxAddons($post = null, $args = array()) {
@@ -309,6 +316,49 @@ class CTIP_TemplateEngine {
 
 		return $output;
 	}
+	
+	/**
+	 * Return a select box wrapper.
+	 * 
+	 * @param string $field_id The option ID. Must be within the plugin settings.
+	 * @param string $label The checkbox description label.
+	 * @param string $description Addition description to place beneath the select.
+	 * @param array $options An associative array with option names (keys) and select display values.
+	 * @param bool $escape Whether to escape the label.
+	 * @return string HTML text field output.
+	 */
+	public function makeSelect( $field_id = '', $label = '', $options = array(), $escape = true ) {
+		
+		if ( $escape ) {
+			$label = \esc_html( $label );
+		}
+		
+		$select_options = '';
+		$selected = $this->getFieldValue($field_id);
+		foreach ( $options as $value => $name ) {
+			$select_options .= vsprintf(
+				'<option value="%s" %s>%s</option>',
+				[
+					esc_attr( $value ),
+					selected( $selected, esc_attr( $value ), false ),
+					esc_html( $name ),
+				]
+			);
+		}
+
+		$output = vsprintf(
+			'<label for="%1$s">%2$s</label>
+			<select name="%3$s" id="%1$s">%4$s</select>',
+			[
+				$this->getFieldId($field_id),
+				$label,
+				$this->getFieldName( $field_id ),
+				$select_options,
+			]
+		);
+		
+		return $output;
+	}
 
 	/**
 	 * Return a wrapped question mark.
@@ -505,6 +555,17 @@ class CTIP_TemplateEngine {
 		if ($echo === false)
 			return $date;
 		echo $date;
+	}
+	
+	public static function getPageNames(): array {
+		if (static::$pageNames !== null)
+			return static::$pageNames;
+		static::$pageNames = array();
+		$pages = get_pages(); // also has option for sorting etc, use default alphabetical by title
+		foreach ($pages as $page) {
+			static::$pageNames[$page->ID] = $page->post_title;
+		}
+		return static::$pageNames;
 	}
 }
 ?>

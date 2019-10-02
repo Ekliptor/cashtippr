@@ -5,7 +5,7 @@ Donate link: https://cashtippr.com/
 Requires at least: 4.7
 Tested up to: 5.2
 Requires PHP: 7.1
-Stable tag: 1.1.9
+Stable tag: 1.1.11
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -62,6 +62,12 @@ Yes this plugin is completely free.
 4. Admin Area 3
 
 == Changelog ==
+= 1.1.11 =
+* added adblock detection and option to show another post to adblock users
+
+= 1.1.10 =
+* added button styling options
+
 = 1.1.9 =
 * find first empty-balance address when changing xPub using WP cron
 

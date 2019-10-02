@@ -72,6 +72,10 @@ class CTIP_Sanitizer {
 	public function formatString($newValue, string $settingName): string {
 		return sanitize_text_field($newValue);
 	}
+	
+	public function formatStringMultiLine($newValue, string $settingName): string {
+		return sanitize_textarea_field($newValue);
+	}
 		
 	public function formatUnknown($newValue, string $settingName) {
 		return sanitize_text_field($newValue);

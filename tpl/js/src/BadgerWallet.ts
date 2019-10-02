@@ -1,5 +1,6 @@
 import {AbstractPayment, CashTippr, CashtipprApiRes} from "./CashTippr";
 import {WebHelpers} from "./WebHelpers";
+import {AbstractModule} from "./AbstractModule";
 
 export interface BadgerWalletPayment extends AbstractPayment {
     buttonId: string; // unique ID, tx ID in our case
@@ -10,7 +11,7 @@ export interface BadgerWalletPayment extends AbstractPayment {
     buttonDataObj: any; // unserialized JS object from buttonData
 }
 
-export class BadgerWallet {
+export class BadgerWallet extends AbstractModule {
     protected static readonly INSTALL_URL = "https://badger.bitcoin.com/";
 
     protected cashtippr: CashTippr;
@@ -18,8 +19,7 @@ export class BadgerWallet {
     protected globalCallbacks: boolean; // expose callback functions to window object because BadgerButton currently doesn't support functions on objects
 
     constructor(cashtippr: CashTippr, webHelpers: WebHelpers, globalCallbacks = false) {
-        this.cashtippr = cashtippr;
-        this.webHelpers = webHelpers;
+        super(cashtippr, webHelpers);
         this.globalCallbacks = globalCallbacks;
 
         if (this.globalCallbacks === true) {
@@ -83,6 +83,7 @@ export class BadgerWallet {
                     this.cashtippr.shout.onPayment(payment);
                 if (payment.buttonDataObj && payment.buttonDataObj.woocommerce === true)
                     this.cashtippr.woocommerce.onPayment(payment);
+                this.cashtippr.adBlockDetect.onPayment(payment);
             });
             // TODO increment tips received and donation goal progress with JS
             if (typeof this.cashtippr.window['onCashtipprPayment'] === "function")

@@ -374,7 +374,7 @@ class Cashtippr {
 	public function createPaymentURI(string $address, float $amountBCH): string {
 		$address = preg_replace("/.+:/i", "", $address);
 		// we use the bitcoincash URI supported by new wallets
-		$uri = sprintf("bitcoincash:%s?amount=%s", $address, number_format($amountBCH, $this->settings->get('paymentCommaDigits')));
+		$uri = sprintf("bitcoincash:%s?amount=%s", $address, number_format($amountBCH, $this->settings->get('paymentCommaDigits'), ".", ""));
 		return $uri;
 	}
 	
@@ -472,7 +472,7 @@ class Cashtippr {
 				// TODO add tippr_unhide shortcode as opposite which removes content after a tip
 			default:
 				if (apply_filters('show_tippr_button', false, $btnConf, $attrs, $content, $tag) === false) {
-					esc_html_e("Unknown shortcode: '$tag'", "ekliptor"); // TODO inpust error template with color custimizations by user
+					esc_html_e("Unknown shortcode: '$tag'", "ekliptor"); // TODO input error template with color custimizations by user
 					echo "<br><br>";
 				}
 		}
@@ -585,6 +585,12 @@ class Cashtippr {
 					'usd' => $this->settings->get('rate_usd_bch')
 			),
 			'paymentCommaDigits' => $this->settings->get('paymentCommaDigits'),
+			'detect_adblock' => $this->settings->get('detect_adblock'),
+			'adblockDisable' => $this->settings->get('adblockDisable'),
+			'adBlockScript' => plugins_url( 'tpl/js/src/libs/fuckadblock.min.js', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' ),
+			'adblockNoConflict' => $this->settings->get('adblockNoConflict'),
+			'adFrameBaitUrl' => $this->settings->get('adFrameBaitUrl'),
+			'tipAmount' => $this->getTipAmount(),
 			// TODO move localized strings into a separate .js file generated from PHP if we have more strings
 			'badgerLocked' => __('Your BadgerWallet is locked. Please open it in your browser toolbar and enter your password before sending money.', 'ekliptor'),
 		);
@@ -597,10 +603,17 @@ class Cashtippr {
 		}
 		$cfg = apply_filters('cashtippr_js_config', $cfg);
 		echo '<script type="text/javascript">var cashtipprCfg = ' . json_encode($cfg) . ';</script>';
+		
+		if ($this->settings->get('detect_adblock') === false || $this->settings->get('adblockDisable') === false)
+			return;
+		include CASHTIPPR__PLUGIN_DIR . 'tpl/client/adblockNotice.php';
 	}
 	
 	public function addPluginScripts() {
 		wp_enqueue_style( 'cashtippr', plugins_url( 'tpl/css/cashtippr.css', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' ), array(), CASHTIPPR_VERSION );
+		$customCss = $this->settings->get('custom_css');
+		if (!empty($customCss))
+			wp_add_inline_style('cashtippr', $customCss); // must be the same handle as an existing stylesheet
 		wp_enqueue_script( 'cashtippr-bundle', plugins_url( 'tpl/js/bundle.js', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' ), array(), CASHTIPPR_VERSION, true );
 	}
 	
@@ -776,8 +789,12 @@ class Cashtippr {
 		return home_url( add_query_arg( array(), $wp->request ) );
 	}
 	
-	public function createBlockchainApiInstance(): AbstractBlockchainApi {
-		$blockchainApi = AbstractBlockchainApi::getInstance($this->settings->get('blockchain_api'), $this->settings->get('blockchain_rest_url'));
+	public function createBlockchainApiInstance(string $implementation = '', string $blockchainApiUrl = ''): AbstractBlockchainApi {
+		if (empty($implementation) || empty($blockchainApiUrl)) {
+			$implementation = $this->settings->get('blockchain_api');
+			$blockchainApiUrl = $this->settings->get('blockchain_rest_url');
+		}
+		$blockchainApi = AbstractBlockchainApi::getInstance($implementation, $blockchainApiUrl);
 		AbstractBlockchainApi::setLogger(function (string $subject, $error, $data = null) {
 			\Cashtippr::notifyErrorExt("BlockChain API: " . $subject, $error, $data);
 		});

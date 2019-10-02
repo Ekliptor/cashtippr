@@ -1,14 +1,12 @@
 import {AbstractPayment, CashTippr, CashtipprApiRes} from "./CashTippr";
 import {WebHelpers} from "./WebHelpers";
+import {AbstractModule} from "./AbstractModule";
 
 
-export class QrCode {
-    protected cashtippr: CashTippr;
-    protected webHelpers: WebHelpers;
+export class QrCode extends AbstractModule {
 
     constructor(cashtippr: CashTippr, webHelpers: WebHelpers) {
-        this.cashtippr = cashtippr;
-        this.webHelpers = webHelpers;
+        super(cashtippr, webHelpers);
 
         this.cashtippr.$(this.cashtippr.window.document).ready(($) => {
             this.cashtippr.$(".ct-qrcode-btn").click((event) => {

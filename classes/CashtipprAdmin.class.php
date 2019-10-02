@@ -55,6 +55,8 @@ class CashtipprAdmin {
 		add_action( 'admin_init', array( $this, 'addPrivacyPolicyContent' ) );
 		
 		add_filter('removable_query_args', array($this, 'addRemovableAdminArgs'));
+		add_filter('cashtippr_settings_change_xPub', array($this, 'onUpdateXpub'), 10, 4);
+		add_filter('cashtippr_settings_change_detect_adblock', array($this, 'onAdBlockChange'), 10, 4);
 		
 		do_action('cashtippr_admin_init', $this);
 	}
@@ -165,6 +167,13 @@ class CashtipprAdmin {
 					$this->pageHook,
 					'main'
 				);
+	        add_meta_box(
+					'cashtippr-styling',
+					esc_html__( 'Custom Style', 'ekliptor' ),
+					array( $this->tpl, 'showStylingSettings' ),
+					$this->pageHook,
+					'main'
+				);
 		}
         
         $pluginBoxes = array(
@@ -191,6 +200,19 @@ class CashtipprAdmin {
     	return $removable_query_args;
     }
     
+    public function onUpdateXpub($newVal, $oldVal, $key, $allSettings) {
+		// reset the hdPath counter (otherwise electron cash needs to scan the full history for the TX to show up
+		$allSettings['addressCount'] = 0;
+		Cashtippr::scheduleUnsuedAddressSearch();
+		return $newVal;
+	}
+	
+	public function onAdBlockChange($newVal, $oldVal, $key, $allSettings) {
+		if ($newVal === true)
+			add_action('shutdown', array ($this, 'updateAdBlockBaitFilename' )); // modifies settings, so must be called after setting is updated
+		return $newVal;
+	}
+    
     public function addPrivacyPolicyContent() {
     	if ( ! function_exists( 'wp_add_privacy_policy_content' ) )
     		return;
@@ -200,6 +222,48 @@ class CashtipprAdmin {
         			'ekliptor' )
     	);
     	wp_add_privacy_policy_content('CashTippr', wp_kses_post( wpautop( $content, false ) ) );
+    }
+    
+    public function updateAdBlockBaitFilename() {
+    	/* // sufficient to just create 1 file with static filename, no random name needed since we want the file to get blocked
+    	// TODO we could also call this periodically via cron, but not needed unless adblock adopts to our scheme (if we were really big)
+    	// first delete the existing file
+    	$existingBaitFile = $this->settings->get('adFrameBaitFile');
+    	if (!empty($existingBaitFile))
+    		@unlink($existingBaitFile);
+    	
+    	// no need to use wp_handle_upload(), the data is from ourselves
+    	$uploadDir = wp_upload_dir();
+    	if (!isset($uploadDir['path'])) {
+    		$this->settings->set('adFrameBaitFile', '');
+    		return; // couldn't be created, see $uploadDir['error'] for details
+    	}
+    	mt_srand();
+    	$len = mt_rand(10, 20);
+    	$nextBaitFile = $uploadDir['path'] . DIRECTORY_SEPARATOR . Cashtippr::getRandomString($len) . '.js';
+    	if (file_put_contents($nextBaitFile, 'var ctipAdblockOk = true;') === false) {
+    		Cashtippr::notifyErrorExt("Error creating AdBlock bait file", "Path: $nextBaitFile");
+    		$this->settings->set('adFrameBaitFile', '');
+    		return;
+    	}
+    	$this->settings->set('adFrameBaitFile', $nextBaitFile);
+    	*/
+    	$existingBaitFile = $this->settings->get('adFrameBaitFile');
+    	if (!empty($existingBaitFile) && file_exists($existingBaitFile) === true)
+    		return;
+    	$uploadDir = wp_upload_dir();
+    	if (!isset($uploadDir['path'])) {
+    		$this->settings->setMultiple(array('adFrameBaitFile' => '', 'adFrameBaitUrl' => ''));
+    		return; // couldn't be created, see $uploadDir['error'] for details
+    	}
+    	$filename = 'adframe.js';
+    	$nextBaitFile = $uploadDir['path'] . DIRECTORY_SEPARATOR . $filename;
+    	if (file_put_contents($nextBaitFile, 'var ctipAdblockOk = true;') === false) {
+    		Cashtippr::notifyErrorExt("Error creating AdBlock bait file", "Path: $nextBaitFile");
+    		$this->settings->setMultiple(array('adFrameBaitFile' => '', 'adFrameBaitUrl' => ''));
+    		return;
+    	}
+    	$this->settings->setMultiple(array('adFrameBaitFile' => $nextBaitFile, 'adFrameBaitUrl' => $uploadDir['url'] . '/' . $filename));
     }
     
     protected function allPluginsEnabled(array $pluginBoxes): bool {

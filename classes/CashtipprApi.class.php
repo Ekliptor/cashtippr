@@ -89,6 +89,23 @@ class CashtipprApi {
 				)
 			)
 		) );
+		
+		$msgParam = array(
+						'required' => false,
+						'type' => 'boolean',
+						//'sanitize_callback' => array( self::$instance, 'sanitizeFloatParam' ),
+						'description' => __( 'Whether to return the message for AdBlock users.', 'ekliptor' ),
+					);
+		register_rest_route( 'cashtippr/v1', '/get-post-notice', array(
+			array(
+				'methods' => WP_REST_Server::READABLE,
+				//'permission_callback' => array( self::$instance, 'cashtipprPermissionCallback' ),
+				'callback' => array( self::$instance, 'getAdBlockInfoPost' ),
+				'args' => array(
+					'msg' => $msgParam,
+				)
+			)
+		) );
 	}
 	
 	public function processPayment(WP_REST_Request $request) {
@@ -155,6 +172,31 @@ class CashtipprApi {
 			$response->data[] = $qrImageUrl;
 		else
 			$response->setError('Unable to generate QR Code');
+		return rest_ensure_response($response);
+	}
+	
+	public function getAdBlockInfoPost(WP_REST_Request $request) {
+		$response = new CashtipprApiRes();
+		do_action('cashtippr_adblock_detected');
+		if ($request->get_param('msg') !== true)
+			return rest_ensure_response($response);
+		$postID = $this->cashtippr->getSettings()->get('adblock_page');
+		if (empty($postID)) {
+			$response->setError(__('Please disable AdBlock to view this website.', 'ekliptor')); // return a localized message for the user
+			return rest_ensure_response($response);
+		}
+		$post = get_post($postID); 
+		if (empty($post)) {
+			$response->setError(__('Please disable AdBlock to view this website.', 'ekliptor')); // return a localized message for the user
+			return rest_ensure_response($response);
+		}
+		$content = apply_filters('the_content', $post->post_content); // allow plugins to hook in
+		$title = apply_filters('the_title', $post->post_title);
+		$response->data[] = array('post' => array(
+				'id' => $post->ID,
+				'title' => $title,
+				'content' => $content,
+		));
 		return rest_ensure_response($response);
 	}
 	

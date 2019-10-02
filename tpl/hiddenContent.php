@@ -7,7 +7,7 @@ if (!defined('ABSPATH'))
 	  <?php if($btnConf['text'] !== ''):?>
 	    <?php esc_html_e($btnConf['text']); ?>
 	  <?php else:?>  
-	    <?php esc_html_e($btnConf['restrictedTxt']); ?>
+	    <span class="ct-restricted"><?php esc_html_e($btnConf['restrictedTxt']); ?></span>
 	  <?php endif;?>  
 	  <?php include CASHTIPPR__PLUGIN_DIR . 'tpl/amountEditInput.php';?>
 	</div>

@@ -7,7 +7,7 @@ if (!defined('ABSPATH'))
 	  <?php if($btnConf['text'] !== ''):?>
 	    <?php esc_html_e($btnConf['text']); ?>
 	  <?php elseif($btnConf['isRestricted'] === true && $btnConf['restrictedTxt'] !== ''):?>
-	    <?php esc_html_e($btnConf['restrictedTxt']); ?>
+	    <span class="ct-restricted"><?php esc_html_e($btnConf['restrictedTxt']); ?></span>
 	  <?php else:?>
 	    <?php esc_html_e($this->settings->get('tip_txt'), 'ekliptor'); ?>
 	  <?php endif;?>

@@ -5,6 +5,8 @@ import {Shout} from "./Shout";
 import {QrCode} from "./QrCode";
 import {BadgerWallet} from "./BadgerWallet";
 import {Woocommerce} from "./Woocommerce";
+import {AdBlockDetect} from "./AdBlockDetect";
+import {AdminControls} from "./admin/AdminControls";
 
 export interface BitcoinCashConversionRate {
     [fiatCurrency: string]: number;
@@ -17,6 +19,13 @@ export interface CashTipprConfig extends WebHelpersConfig {
     ajaxConfirm?: boolean;
     keepTransaction?: boolean; // keep the transaction in mysql so that plugin addons can use them after payment
     paymentCommaDigits: number;
+
+    detect_adblock: boolean;
+    adblockDisable: boolean;
+    adBlockScript: string;
+    adblockNoConflict: boolean;
+    adFrameBaitUrl: string;
+    tipAmount: number;
 
     // present after order is placed
     orderID?: number;
@@ -50,13 +59,15 @@ export class CashTippr {
     public readonly $: JQueryStatic;
     public readonly badger: BadgerWallet;
     public readonly qr: QrCode;
+    public readonly adBlockDetect: AdBlockDetect;
     public readonly blurryImage: BlurryImage;
     public readonly shout: Shout;
     public readonly woocommerce: Woocommerce;
 
     protected config: CashTipprConfig;
     protected webHelpers: WebHelpers;
-    protected tooltips = new Tooltips(this);
+    protected adminControls: AdminControls;
+    protected tooltips: Tooltips;
 
     constructor(window: Window, $: JQueryStatic) {
         this.window = window;
@@ -67,13 +78,16 @@ export class CashTippr {
         this.config.confirmCookiesBtn = CashTippr.CONFIRM_COOKIES_BTN;
 
         this.webHelpers = new WebHelpers(this.window, this.$, this.config);
+        this.tooltips = new Tooltips(this, this.webHelpers);
+        this.adminControls = new AdminControls(this);
         this.badger = new BadgerWallet(this, this.webHelpers, true);
         this.qr = new QrCode(this, this.webHelpers);
-        this.blurryImage = new BlurryImage(this);
-        this.shout = new Shout(this);
+        this.adBlockDetect = new AdBlockDetect(this, this.webHelpers);
+        this.blurryImage = new BlurryImage(this, this.webHelpers);
+        this.shout = new Shout(this, this.webHelpers);
         this.woocommerce = new Woocommerce(this, this.webHelpers);
         this.$(this.window.document).ready(($) => {
-            this.tooltips.initToolTips();
+            this.adminControls.init();
             this.webHelpers.checkCookieConsent();
         });
     }
@@ -84,6 +98,10 @@ export class CashTippr {
 
     public getConfig() {
         return this.config;
+    }
+
+    public getTooltips() {
+        return this.tooltips;
     }
 
     public getWebHelpers() {

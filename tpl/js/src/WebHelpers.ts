@@ -127,7 +127,7 @@ export class WebHelpers {
                 let reg = new RegExp("\\{" + placeHolder + "\\}", "g");
                 text = text.replace(reg, translation);
             }
-            else if (placeHolder.match("[A-Za-z0-9_]+") !== null) {
+            else if (placeHolder.match("^[A-Za-z0-9_]+$") !== null) {
                 this.log("No translation found for place holder: " + placeHolder);
                 let reg = new RegExp("\\{" + placeHolder + "\\}", "g");
                 text = text.replace(reg, "MISSING: " + this.escapeOutput(placeHolder));
