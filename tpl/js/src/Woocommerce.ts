@@ -7,6 +7,8 @@ import {AbstractModule} from "./AbstractModule";
  * Class to interact with the Woocommerce store of a WordPress installation.
  */
 export class Woocommerce extends AbstractModule {
+    protected fullyPaid: boolean = false;
+    protected checkServerPaymentTimerID: number = 0;
 
     constructor(cashtippr: CashTippr, webHelpers: WebHelpers) {
         super(cashtippr, webHelpers);
@@ -58,8 +60,10 @@ export class Woocommerce extends AbstractModule {
             oid: config.orderID
         }
         this.webHelpers.getApi("/wp-json/cashtippr-wc/v1/order-status", params, (data) => {
-            if (config.checkPaymentIntervalSec > 0) // TODO abort checking after x minutes?
-                setTimeout(this.checkPaymentStatus.bind(this, true), config.checkPaymentIntervalSec*1000);  // always repeat the check even if there was an error
+            if (repeat === true && config.checkPaymentIntervalSec > 0) { // TODO abort checking after x minutes?
+                clearTimeout(this.checkServerPaymentTimerID); // ensure we don't have multiple timers running
+                this.checkServerPaymentTimerID = setTimeout(this.checkPaymentStatus.bind(this, true), config.checkPaymentIntervalSec * 1000);  // always repeat the check even if there was an error
+            }
             if (data.error === true) {
                 this.cashtippr.window.console.error("Error checking BCH payment status: %s", data.errorMsg);
                 return;
@@ -94,6 +98,10 @@ export class Woocommerce extends AbstractModule {
     }
 
     protected showPaymentReceived() {
+        if (this.fullyPaid === true)
+            return; // already updated
+        this.fullyPaid = true;
+        clearTimeout(this.checkServerPaymentTimerID);
         this.cashtippr.$("#ct-payment-status").text(this.cashtippr.getConfig().paidTxt);
         this.cashtippr.$("#ct-payment-pending, #ct-pay-instructions, .ct-payment-option").fadeOut("slow");
     }

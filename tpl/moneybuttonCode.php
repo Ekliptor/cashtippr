@@ -6,7 +6,10 @@ if (!defined('ABSPATH'))
 	<?php if($btnConf['addQrCode'] === true && !isset($btnConf['noQrButton'])):?>  
       <div class="ct-qrcode-wrap">
         <a class="ct-qrcode-btn" href="javascript:;">
-          <img src="<?php echo esc_attr($btnConf['qrcodeStatic']);?>" width="70" height="70" alt="<?php esc_attr_e('Tip with QR Code', 'ekliptor');?>" title="<?php esc_attr_e('Tip with QR Code', 'ekliptor');?>">
+          <div class="ct-qrcode-img-wrap">
+            <img src="<?php echo esc_attr($btnConf['qrcodeStatic']);?>" width="50" height="50" alt="<?php esc_attr_e('Click to tip with QR Code', 'ekliptor');?>" title="<?php esc_attr_e('Click to tip with QR Code', 'ekliptor');?>">
+            <div class="ct-qr-btn-txt"><?php esc_html_e('Click', 'ekliptor');?></div>
+          </div>
         </a>
       </div> 
     <?php endif;?> 
@@ -19,10 +22,10 @@ if (!defined('ABSPATH'))
       ><?php echo esc_html($btnConf['btnText']);?> <span class="ct-btn-display-amount"><?php echo $btnConf['amount'];?></span> <?php echo $btnConf['unit'];?></button>
     </div>  
 </div>
+<?php if($btnConf['addQrCode'] === true && $includedQrCodeTemplate === false): $includedQrCodeTemplate = true;?>  
+	<?php include CASHTIPPR__PLUGIN_DIR . 'tpl/client/qrcode.php';?>
+<?php endif;?>
 <?php if ($includedMoneybuttonScript === false): $includedMoneybuttonScript = true;?>
-	<?php if($btnConf['addQrCode'] === true):?>  
-		<?php include CASHTIPPR__PLUGIN_DIR . 'tpl/client/qrcode.php';?>
-	<?php endif;?>
 <script type="text/javascript">
 	function onBadgerPaymentG_<?php echo $btnConf['txid'];?>(txid) {
 		window.onBadgerPayment({

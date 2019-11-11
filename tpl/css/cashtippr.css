@@ -29,6 +29,13 @@
 .ct-button-text {
 	font-weight: bold;
 }
+.ct-qrcode-img-wrap {
+	line-height: 1.0;
+	padding-right: 5px;
+}
+.ct-qr-btn-txt {
+	padding-left: 4px;
+}
 
 .money-button-iframe-wrapper {
 }

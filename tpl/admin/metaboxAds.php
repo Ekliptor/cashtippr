@@ -59,7 +59,7 @@ use Ekliptor\Wordpress\TemplateEngine;
 				),
 				$this->makeCheckbox(
 					'adblockDisable',
-					esc_html__( 'Disable page for AdBlock users', 'ekliptor' ) . ' ' . $adblockDisableInfo,
+					esc_html__( 'Disable page for AdBlock users with 0 tips', 'ekliptor' ) . ' ' . $adblockDisableInfo,
 					'',
 					false
 				),

@@ -3,9 +3,9 @@ Contributors: ekliptor
 Tags: bitcoin, bch, ecommerce, e-commerce, blog, tipping, store, sales, sell, shop, bitcoin cash, btc
 Donate link: https://cashtippr.com/
 Requires at least: 4.7
-Tested up to: 5.2
+Tested up to: 5.3
 Requires PHP: 7.1
-Stable tag: 1.1.11
+Stable tag: 1.1.13
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -20,6 +20,7 @@ Earn money for your content using instant Bitcoin Cash tips (0 conf).
 * earn tips from your content
 * add tip buttons for voluntary donations or
 * hide parts of your posts to require users to tip
+* AdBlock detection: show custom message to AdBlock users
 * 0 coding skills required
 
 Check the demo at [CashTippr.com](https://cashtippr.com/ "CashtTippr") and send me a tip to support development.

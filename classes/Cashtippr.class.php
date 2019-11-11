@@ -38,6 +38,8 @@ class Cashtippr {
 	private static $cron_events_hourly = array(
 			'update_currency_rates'
 		);
+	/** @var \WC_Log_Handler_File */
+    protected static  $logger = null;
 	
 	/** @var CTIP_Settings */
 	protected $settings;
@@ -60,6 +62,8 @@ class Cashtippr {
 	protected $hiddenWords = 0;
 	/** @var bool */
 	protected $includedMoneybuttonScript = false;
+	/** @var bool */
+	protected $includedQrCodeTemplate = false;
 	/** @var string */
 	protected $qrcodeStatic;
 	/** @var string */
@@ -68,7 +72,7 @@ class Cashtippr {
 	protected $loadingImage;
 	
 	private function __construct() {
-		$this->qrcodeStatic = plugins_url( 'img/qrcode.svg', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
+		$this->qrcodeStatic = plugins_url( 'img/qrstatic.png', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
 		$this->closeImage = plugins_url( 'img/close50.png', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
 		$this->loadingImage = plugins_url( 'img/loading.gif', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
 	}
@@ -338,7 +342,7 @@ class Cashtippr {
 		$qrHash = hash('sha512', $txid);
 		$fileName = sprintf('data/temp/qr/%s.png', $qrHash);
 		$fileLocal = CASHTIPPR__PLUGIN_DIR . $fileName;
-		$fileUrl =  plugins_url( $fileName, CASHTIPPR__PLUGIN_DIR . 'slp-payments.php' );
+		$fileUrl =  plugins_url( $fileName, CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
 		if (file_exists($fileLocal) === true)
 			return $fileUrl; // use it from cache
 		
@@ -359,7 +363,7 @@ class Cashtippr {
 		$qrHash = hash('sha512', $txid);
 		$fileName = sprintf('data/temp/qr/%s.png', $qrHash);
 		$fileLocal = CASHTIPPR__PLUGIN_DIR . $fileName;
-		$fileUrl =  plugins_url( $fileName, CASHTIPPR__PLUGIN_DIR . 'slp-payments.php' );
+		$fileUrl =  plugins_url( $fileName, CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' );
 		if (file_exists($fileLocal) === true)
 			return $fileUrl; // use it from cache
 		
@@ -426,6 +430,7 @@ class Cashtippr {
 		$btnConf['addQrCode'] = $btnConf['isRestricted'] === false && $btnConf['tag'] === 'tippr_button' && $btnConf['unit'] === 'USD'; // TODO QR code support for more currencies
 		$btnConf['btnText'] = __('Send', 'ekliptor');
 		$includedMoneybuttonScript = $this->getIncludedMoneybuttonScript();
+		$includedQrCodeTemplate = $this->includedQrCodeTemplate;
 		ob_start();
 		switch ($tag) {
 			case "tippr_button":
@@ -480,6 +485,7 @@ class Cashtippr {
 		ob_end_clean();
 		//$this->setIncludedMoneybuttonScript($includedMoneybuttonScript);
 		$this->setIncludedMoneybuttonScript(true);
+		$this->includedQrCodeTemplate = $includedQrCodeTemplate;
 		wp_enqueue_script( 'badger-wallet', Cashtippr::BADGER_WALLET_JS, array(), CASHTIPPR_VERSION, true );
 		return $docHtml;
 	}
@@ -729,6 +735,14 @@ class Cashtippr {
 	
 	public static function notifyErrorExt($subject, $error, $data = null) {
 		global $wpdb;
+		if (defined('WC_LOG_DIR') === true) {
+			if (static::$logger === null)
+				static::$logger = new \WC_Log_Handler_File();
+			$logMsg = $subject . "\r\n" . print_r($error, true);
+			if ($data !== null)
+				$logMsg .= "\r\n" . print_r($data, true);
+			static::$logger->handle(time(), 'error', $logMsg, array('source' => 'cashtippr'));
+		}
 		if (static::DEBUG === false)
 			return;
 		$table = static::getTableName("messages_system");

@@ -3,7 +3,6 @@ import {AbstractModule} from "../AbstractModule";
 import {WebHelpers} from "../WebHelpers";
 
 export class Tooltips extends AbstractModule {
-    protected cashtippr: CashTippr;
 
     constructor(cashtippr: CashTippr, webHelpers: WebHelpers) {
         super(cashtippr, webHelpers);

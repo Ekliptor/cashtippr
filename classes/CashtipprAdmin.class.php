@@ -88,6 +88,8 @@ class CashtipprAdmin {
 	
 	public function initCurrentScreen(WP_Screen $screen) {
 		// id: [id] => toplevel_page_cashtippr or cashtippr_page_cashtippr_shout <- this is always the hook
+		if (strpos($screen->base, 'cashtippr') === false)
+			return;
 		$this->pageHook = $screen->base;
 		
 		add_action( $this->pageHook . '_settings_page_boxes', array( $this, 'showAllSettings' ) );

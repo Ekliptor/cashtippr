@@ -2,7 +2,7 @@
 namespace Ekliptor\Cashtippr;
 
 class DatabaseMigration {
-	/** @var string */
+	/** @var string Latest DB version. Only updated with plugin version if there are migrations. */
 	protected $lastVersion;
 	/** @var string */
 	protected $currentVersion;
@@ -11,23 +11,28 @@ class DatabaseMigration {
 	
 	public function __construct(string $lastVersion, string $currentVersion) {
 		if (!$lastVersion)
-			$lastVersion = '1';
+			$lastVersion = '1'; // when we added migration. shouldn't be needed
 		$this->lastVersion = $lastVersion;
 		$this->currentVersion = $currentVersion;
 	}
 	
 	public static function checkAndMigrate() {
-		add_action('plugins_loaded', function() {
-			$lastVersion = get_option('cashtippr_version');
-			if ($lastVersion === CASHTIPPR_VERSION)
-				return;
+		$lastVersion = get_option('cashtippr_version');
+		if ($lastVersion === CASHTIPPR_VERSION)
+			return;
+		add_action('plugins_loaded', function() use ($lastVersion) {
 			$migrate = new DatabaseMigration($lastVersion, CASHTIPPR_VERSION);
-			if ($migrate->ensureLatestVersion() === false) { // TODO can be switched to migrate() call just like in plugin_activcation()
-				\Cashtippr::notifyErrorExt("Error ensuring latest DB version on migration", $migrate->getLastError());
-				return;
+			try {
+				if ($migrate->migrate() === false) {
+					\Cashtippr::notifyErrorExt("Error ensuring latest DB version on migration", $migrate->getLastError());
+					return;
+				}
+				update_option( 'cashtippr_version', CASHTIPPR_VERSION ); // should already be done in main plugin class
 			}
-			update_option ( 'cashtippr_version', CASHTIPPR_VERSION );
-		});
+			catch (\Exception $e) {
+				\Cashtippr::notifyErrorExt("Exception during DB migration: " . get_class(), $e->getMessage());
+			}
+		}, 200); // load after other plugins
 	}
 	
 	public function migrate(): bool {
@@ -52,6 +57,7 @@ class DatabaseMigration {
 	/**
 	 * Fix function if migrate() didn't work on some instances previously.
 	 */
+	/*
 	public function ensureLatestVersion(): bool {
 		$table = \Cashtippr::getTableName('transactions');
 		if ($this->columnExists($table, 'amount') === false) {
@@ -60,6 +66,7 @@ class DatabaseMigration {
 		}
 		return true;
 	}
+	*/
 	
 	public function getLastError(): array {
 		return $this->lastError;

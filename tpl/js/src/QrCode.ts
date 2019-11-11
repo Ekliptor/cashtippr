@@ -19,7 +19,7 @@ export class QrCode extends AbstractModule {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected showQrDialog(target: Element) {
-        const paymentButtonWrapper = this.cashtippr.$(target).parent().parent().parent();
+        const paymentButtonWrapper = this.cashtippr.$(target).parent().parent().parent().parent();
         const txid = this.cashtippr.getPluginPaymentID(paymentButtonWrapper);
         const paymentCtrlWrapper = paymentButtonWrapper.parent();
         let amount = 0.0;
