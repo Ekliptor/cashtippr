@@ -68,11 +68,15 @@ class CTIP_Settings {
 		// meta parameter one level above the registered cashtippr_settings array
 		$allCheckboxes = isset($_POST['all_checkboxes']) ? explode(',', sanitize_text_field($_POST['all_checkboxes'])) : array();
 		$allCheckboxes = array_flip($allCheckboxes);
+		$allMultiselect = isset($_POST['all_multiselect']) ? explode(',', sanitize_text_field($_POST['all_multiselect'])) : array();
+		$allMultiselect = array_flip($allMultiselect);
 		// sanitize & add missing keys
 		foreach ($defaults as $key => $value) {
 			if (!isset($settings[$key])) {
 				if (isset($allCheckboxes[$key]))
 					$settings[$key] = false; // unchecked checkboxes are not present in html forms , so do this BEFORE falling back to prev setting
+				else if (isset($allMultiselect[$key]))
+					$settings[$key] = array();
 				else if (isset($allSettings[$key]))
 					$settings[$key] = $allSettings[$key]; // keep the previous value
 				else
@@ -537,6 +541,41 @@ class CTIP_Settings {
 				'shout_update_nonce' => Cashtippr::getRandomString(20),
 				'shout_last_update_check' => time(),
 				
+				// SLP Press
+				// Wallet
+				'admin_wallet' => '',
+				'admin_bch_wallet' => '',
+				'passphrase' => '',
+				// Distribution
+				'token_reward_amount' => 10,
+				'min_read_time_sec' => 40,
+				'token_reward_interval_h' => 18,
+				'vip_reader_days' => 7,
+				'token_reward_amount_vip' => 20,
+				'enable_slp_press_on_woocommerce' => true,
+				'enable_specific_pages' => false,
+				'slp_press_pages' => array(), // numeric page IDs as values
+				'enable_specific_posts' => false,
+				'slp_press_posts' => array(), // numeric post IDs as values
+				'token_payout_interval_days' => 1,
+				'token_last_payout_time' => 0, // unix timestamp, set to current time on first install
+				'hash_user_ips' => true,
+				// Community
+				'show_token_amount_comments' => true,
+				//'send_token_users' => true, // TODO
+				// token config
+				'token_reward_id' => '',
+				'token_reward_ticker' => '',
+				'token_reward_name' => '',
+				'token_reward_icon' => '',
+				'token_reward_website' => '',
+				'slp_press_admin_token' => '',
+				'slp_distribute_nonce' => '',
+				// stats
+				'pending_payouts' => 0,
+				'slp_press_update_nonce' => Cashtippr::getRandomString(20),
+				'slp_press_last_update_check' => time(),
+				
 				// Woocommerce
 				'blockchain_api' => 'BitcoinComRestApi',
 				'wait_confirmations' => 3,
@@ -548,6 +587,9 @@ class CTIP_Settings {
 				'skipUsedAddressCount' => 10,
 				'addressCount' => 0,
 				'lastAddress' => '', // used for debugging
+				
+				// Addons
+				'lastOrderID' => 0,
 		);
 		$defaults = apply_filters('cashtippr_default_settings', $defaults);
 		if ($onUpdate === true) { // html form checkboxes are not present when false, so assume false for all on update

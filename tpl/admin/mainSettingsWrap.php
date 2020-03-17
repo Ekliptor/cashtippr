@@ -25,6 +25,7 @@ if (!defined('ABSPATH'))
 			?>
 		</div>
 		<input type="hidden" name="all_checkboxes" value="<?php echo $this->tpl->getAllCheckboxes(true);?>" />
+		<input type="hidden" name="all_multiselect" value="<?php echo $this->tpl->getAllMultiselect(true);?>" />
 	</form>
 </div>
 <?php

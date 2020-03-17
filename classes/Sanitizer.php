@@ -20,6 +20,7 @@ class CTIP_Sanitizer {
 			case 'integer':			return array($this, 'formatInteger');
 			case 'double':			return array($this, 'formatFloat'); // float
 			case 'string':			return array($this, 'formatString');
+			case 'array':			return array($this, 'formatArray');
 		}
 		return array($this, 'formatUnknown'); // shouldn't be reached since array, object,... can not be passed in via HTML forms
 	}
@@ -79,6 +80,14 @@ class CTIP_Sanitizer {
 		
 	public function formatUnknown($newValue, string $settingName) {
 		return sanitize_text_field($newValue);
+	}
+	
+	public function formatArray($newValue, string $settingName) {
+		// cashtippr_settings[slp_press_pages][] becomes a numeric PHP array with values of select options
+		// we don't pass along if array values are supposed to be numbers or strings, so assume strings
+		for ($i = 0; $i < count($newValue); $i++)
+			$newValue[$i] = sanitize_text_field($newValue[$i]);
+		return $newValue;
 	}
 	
 	/**

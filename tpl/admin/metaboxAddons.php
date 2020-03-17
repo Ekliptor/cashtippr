@@ -22,6 +22,18 @@
 			<hr>
 		<?php endif;?>
 		
+		<?php if (!isset($pluginBoxes['SlpPress']) || $pluginBoxes['SlpPress'] !== true):?>
+			<h4><?php esc_html_e( 'SLP Press', 'ekliptor' ); ?></h4>
+			
+			<p>
+				<?php esc_html_e( 'Reward your readers by sending them SLP tokens for frequently reading your content.', 'ekliptor' ); ?>
+			</p>
+			<p>
+				<a target="_blank" href="https://cashtippr.com/slp-press/"><?php esc_html_e( 'Install CashTippr SLP Press', 'ekliptor' ); ?></a>
+			</p>
+			<hr>
+		<?php endif;?>
+		
 		<?php if (!isset($pluginBoxes['Woocommerce']) || $pluginBoxes['Woocommerce'] !== true):?>
 			<h4><?php esc_html_e( 'Woocommerce', 'ekliptor' ); ?></h4>
 			
@@ -30,6 +42,18 @@
 			</p>
 			<p>
 				<a target="_blank" href="https://cashtippr.com/woocommerce-payment-gateway/"><?php esc_html_e( 'Install CashTippr Woocommerce Gateway', 'ekliptor' ); ?></a>
+			</p>
+			<hr>
+		<?php endif;?>
+		
+		<?php if (!isset($pluginBoxes['SlpPayments']) || $pluginBoxes['SlpPayments'] !== true):?>
+			<h4><?php esc_html_e( 'SLP Payments for WooCommerce', 'ekliptor' ); ?></h4>
+			
+			<p>
+				<?php esc_html_e( 'Accept any SLP token or Bitcoin Cash (BCH) as a payment method in your online store. Easily create and use your own token for e-commerce.', 'ekliptor' ); ?>
+			</p>
+			<p>
+				<a target="_blank" href="https://wordpress.org/plugins/slp-payments-for-woocommerce/"><?php esc_html_e( 'Install SLP Payments', 'ekliptor' ); ?></a>
 			</p>
 			<hr>
 		<?php endif;?>

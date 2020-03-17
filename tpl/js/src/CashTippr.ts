@@ -4,6 +4,7 @@ import {BlurryImage} from "./BlurryImage";
 import {Shout} from "./Shout";
 import {QrCode} from "./QrCode";
 import {BadgerWallet} from "./BadgerWallet";
+import {SlpPress, SlpPressConfig} from "./SlpPress";
 import {Woocommerce} from "./Woocommerce";
 import {AdBlockDetect} from "./AdBlockDetect";
 import {AdminControls} from "./admin/AdminControls";
@@ -27,6 +28,9 @@ export interface CashTipprConfig extends WebHelpersConfig {
     adFrameBaitUrl: string;
     tipAmount: number;
 
+    // SLP Press
+    distributeTokens?: SlpPressConfig;
+
     // present after order is placed
     orderID?: number;
     nonce?: string;
@@ -35,6 +39,15 @@ export interface CashTipprConfig extends WebHelpersConfig {
     // localizations
     badgerLocked: string;
     paidTxt: string;
+}
+
+export interface CashTipprAdminConfig extends WebHelpersConfig {
+    //loadBlockchainApi: boolean;
+    adminSlpWallet?: string;
+    slpDistributeNonce?: string;
+
+    // localizations
+    distributeTokens?: SlpPressConfig;
 }
 
 export interface AbstractPayment {
@@ -63,8 +76,10 @@ export class CashTippr {
     public readonly blurryImage: BlurryImage;
     public readonly shout: Shout;
     public readonly woocommerce: Woocommerce;
+    public readonly slpPress: SlpPress;
 
     protected config: CashTipprConfig;
+    protected adminConfig:CashTipprAdminConfig;
     protected webHelpers: WebHelpers;
     protected adminControls: AdminControls;
     protected tooltips: Tooltips;
@@ -73,9 +88,7 @@ export class CashTippr {
         this.window = window;
         this.$ = $;
         this.config = this.window['cashtipprCfg'] || {};
-        this.config.consentCookieName = CashTippr.CONSENT_COOKIE_NAME;
-        this.config.confirmCookiesMsg = CashTippr.CONFIRM_COOKIES_MSG;
-        this.config.confirmCookiesBtn = CashTippr.CONFIRM_COOKIES_BTN;
+        this.addDefaultConfig(this.config);
 
         this.webHelpers = new WebHelpers(this.window, this.$, this.config);
         this.tooltips = new Tooltips(this, this.webHelpers);
@@ -86,7 +99,13 @@ export class CashTippr {
         this.blurryImage = new BlurryImage(this, this.webHelpers);
         this.shout = new Shout(this, this.webHelpers);
         this.woocommerce = new Woocommerce(this, this.webHelpers);
+        this.slpPress = new SlpPress(this);
         this.$(this.window.document).ready(($) => {
+            this.adminConfig = this.window['cashtipprAdminCfg'] || {}; // JS bundle is included early on admin page for AdminSettings
+            if (this.window['cashtipprAdminCfg']) {
+                this.addDefaultConfig(this.adminConfig);
+                this.webHelpers.setConfig(this.adminConfig);
+            }
             this.adminControls.init();
             this.webHelpers.checkCookieConsent();
         });
@@ -100,12 +119,20 @@ export class CashTippr {
         return this.config;
     }
 
+    public getAdminConfig() {
+        return this.adminConfig;
+    }
+
     public getTooltips() {
         return this.tooltips;
     }
 
     public getWebHelpers() {
         return this.webHelpers;
+    }
+
+    public getBadgerWallet() {
+        return this.badger;
     }
 
     public getPluginPaymentID(paymentControlsWrapper: JQuery) {
@@ -134,4 +161,10 @@ export class CashTippr {
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
+
+    protected addDefaultConfig(config: WebHelpersConfig) {
+        config.consentCookieName = CashTippr.CONSENT_COOKIE_NAME;
+        config.confirmCookiesMsg = CashTippr.CONFIRM_COOKIES_MSG;
+        config.confirmCookiesBtn = CashTippr.CONFIRM_COOKIES_BTN;
+    }
 }

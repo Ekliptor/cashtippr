@@ -19,6 +19,9 @@ export class AdBlockDetect extends AbstractModule {
         });
     }
 
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+
     protected loadLib() {
         // We look at whether FuckAdBlock already exists.
         const wnd: any = this.cashtippr.window;

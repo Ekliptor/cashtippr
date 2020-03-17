@@ -53,6 +53,7 @@ class CashtipprAdmin {
 		//add_action( 'admin_init', array( $this, 'loadAssets' ) ); // done after screen setup
 		add_action( 'admin_init', array( $this, 'displayAdminNotices' ) );
 		add_action( 'admin_init', array( $this, 'addPrivacyPolicyContent' ) );
+		add_action('admin_footer', array($this, 'addAdminJavascript'));
 		
 		add_filter('removable_query_args', array($this, 'addRemovableAdminArgs'));
 		add_filter('cashtippr_settings_change_xPub', array($this, 'onUpdateXpub'), 10, 4);
@@ -133,6 +134,12 @@ class CashtipprAdmin {
 		add_action( "load-{$this->pageHook}", array( $this, 'addMetaboxScripts' ) );
 	}
 	
+	public function addAdminJavascript() {
+		$cfg = $this->cashtippr->getPluginJsConfigData();
+		$cfg = apply_filters('cashtippr_admin_js_config', $cfg);
+		echo '<script type="text/javascript">var cashtipprAdminCfg = ' . json_encode($cfg) . ';</script>';
+	}
+	
 	public function addMetaboxScripts() {
 		wp_enqueue_script( 'common' );
 		wp_enqueue_script( 'wp-lists' );
@@ -181,7 +188,9 @@ class CashtipprAdmin {
         $pluginBoxes = array(
         		'BlurryImage' => false,
         		'Shout' => false,
-        		'Woocommerce' => false
+        		'SlpPress' => false,
+        		'Woocommerce' => false,
+        		'SlpPayments' => defined('BCHSLP_PAYMENTS_VERSION') === true // faster than get_option('slp_payments_installed')
         );
         $pluginBoxes = apply_filters('cashtippr_admin_metaboxes', $pluginBoxes, $post_type); // allows plugins to add metaboxes
         if ($this->pageHook === static::PAGE_HOOK && $this->allPluginsEnabled($pluginBoxes) === false) { // advertise our plugin addons

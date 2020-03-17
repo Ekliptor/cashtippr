@@ -23,6 +23,10 @@ export class WebHelpers {
         this.config = config;
     }
 
+    public setConfig(config: WebHelpersConfig) {
+        this.config = config;
+    }
+
     public getBrowserLang() {
         return this.window.navigator.language.substr(0, 2).toLowerCase();
     }
@@ -249,5 +253,21 @@ export class WebHelpers {
         return this.$.get(url, data, (data, textStatus, jqXHR) => {
             callback(data, textStatus, jqXHR);
         }, dataType);
+    }
+
+    postApi(path: string, data?: any, callback?: (data: any, textStatus: string, jqXHR: JQueryXHR) => any, dataType?: string) {
+        let url = path;
+        if (url.toLowerCase().indexOf("http") !== 0)
+            url = this.config.siteUrl + url;
+        return this.$.post(url, data, (data, textStatus, jqXHR) => {
+            callback(data, textStatus, jqXHR);
+        }, dataType);
+    }
+
+    postApiJson(path: string, data?: any, callback?: (data: any, textStatus: string, jqXHR: JQueryXHR) => any, dataType?: string) {
+        let outData = {
+            data: JSON.stringify(data)
+        };
+        return this.postApi(path, outData, callback, dataType);
     }
 }

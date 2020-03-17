@@ -246,6 +246,51 @@ body div#page div#content .ct-hidden-text {
 	font-style: italic;
 }
 
+/* SLP Press Addon */
+#ct-tokenMsg {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  min-height: 80px;
+  border-radius: 25px;
+  z-index: 100;
+  padding: 20px 35px 15px 35px;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0, 0.8);
+  color: white;
+  font-size: 20px;
+}
+#ct-tokenMsg a:link, #ct-tokenMsg a:visited {
+	color: white;
+}
+#ct-tokenMsg a:hover, #ct-tokenMsg a:active {
+    color: #f3f3f3;
+}
+#ct-tokenMsg .ct-press-message {
+  margin-left: 10px;
+  margin-right: 10px;
+  
+  /* from wp-core-ui class */
+  background: #0085ba;
+  border-color: #0073aa #006799 #006799;
+  box-shadow: 0 1px 0 #006799;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+}
+.ct-inline-fields input {
+	max-width: 50%;
+	display: inline-block;
+}
+#ct-input-slp-wallet-form {
+	margin-top: 5px;
+}
+.ct-token-info {
+	margin-top: 5px;
+}
+
 /* Woocommerce Addon */
 .ct-payment-select, .ct-play-option {
 	font-weight: bold;
@@ -284,4 +329,12 @@ a.ct-button-link {
 a.ct-button-link:hover, a.sct-button-link:focus, a.ct-button-link:active, a.ct-button-link:visited {
 	background: #000000;
 	color: #fff!important;
+}
+
+/** Addons */
+#ct-addon-payment-options {
+	margin-bottom: 15px;
+}
+#ct-addon-payment-options > div {
+	margin-bottom: 15px;
 }

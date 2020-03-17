@@ -3,9 +3,9 @@ Contributors: ekliptor
 Tags: bitcoin, bch, ecommerce, e-commerce, blog, tipping, store, sales, sell, shop, bitcoin cash, btc
 Donate link: https://cashtippr.com/
 Requires at least: 4.7
-Tested up to: 5.3
+Tested up to: 5.4
 Requires PHP: 7.1
-Stable tag: 1.1.13
+Stable tag: 1.1.17
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 

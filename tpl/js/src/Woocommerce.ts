@@ -59,6 +59,7 @@ export class Woocommerce extends AbstractModule {
             n: config.nonce,
             oid: config.orderID
         }
+        clearTimeout(this.checkServerPaymentTimerID);
         this.webHelpers.getApi("/wp-json/cashtippr-wc/v1/order-status", params, (data) => {
             if (repeat === true && config.checkPaymentIntervalSec > 0) { // TODO abort checking after x minutes?
                 clearTimeout(this.checkServerPaymentTimerID); // ensure we don't have multiple timers running

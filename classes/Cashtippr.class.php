@@ -330,6 +330,18 @@ class Cashtippr {
 		$this->includedMoneybuttonScript = $included;
 	}
 	
+	public function getIncludedQrCodeTemplate() {
+		return $this->includedQrCodeTemplate;
+	}
+	
+	public function setIncludedQrCodeTemplate(bool $included) {
+		$this->includedQrCodeTemplate = $included;
+	}
+	
+	public function getSessionID(): string {
+		return session_id(); // ID or empty string
+	}
+	
 	/**
 	 * Generate a QR code for the payment
 	 * @param string $txid The internal MySQL transaction ID (not the on-chain TXID).
@@ -581,7 +593,7 @@ class Cashtippr {
 	}
 	
 	public function addFooterCode() {
-		$cfg = array(
+		$cfg = $this->getPluginJsConfigData(array(
 			'cookieLifeDays' => ceil(static::SESSION_LIFETIME_SEC / DAY_IN_SECONDS),
 			'cookiePath' => $this->siteUrlParts['path'],
 			'siteUrl' => $this->getSiteUrl(),
@@ -599,7 +611,7 @@ class Cashtippr {
 			'tipAmount' => $this->getTipAmount(),
 			// TODO move localized strings into a separate .js file generated from PHP if we have more strings
 			'badgerLocked' => __('Your BadgerWallet is locked. Please open it in your browser toolbar and enter your password before sending money.', 'ekliptor'),
-		);
+		));
 		if ($this->settings->get('show_cookie_consent') === true && !isset($_COOKIE[static::CONSENT_COOKIE_NAME])) {
 			// TODO add option to only show this to specific countries
 			// from get_the_privacy_policy_link()
@@ -621,6 +633,14 @@ class Cashtippr {
 		if (!empty($customCss))
 			wp_add_inline_style('cashtippr', $customCss); // must be the same handle as an existing stylesheet
 		wp_enqueue_script( 'cashtippr-bundle', plugins_url( 'tpl/js/bundle.js', CASHTIPPR__PLUGIN_DIR . 'cashtippr.php' ), array(), CASHTIPPR_VERSION, true );
+	}
+	
+	public function getPluginJsConfigData(array $existingConfig = array()): array {
+		return array_merge($existingConfig, array(
+				'cookieLifeDays' => ceil(static::SESSION_LIFETIME_SEC / DAY_IN_SECONDS),
+				'cookiePath' => $this->siteUrlParts['path'],
+				'siteUrl' => $this->getSiteUrl(),
+		));
 	}
 	
 	public function getSettings(): CTIP_Settings {

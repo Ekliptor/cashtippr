@@ -1,4 +1,6 @@
 <?php
+use Twilio\Values;
+
 class CTIP_TemplateEngine {
 	/** @var CTIP_Settings */
 	protected  $settings;
@@ -9,11 +11,15 @@ class CTIP_TemplateEngine {
 	protected static $timeFormat = '';
 	/** @var array An associative array of all WP pages with ID as key and title as value. */
 	protected static $pageNames = null;
+	/** @var array An associative array of all WP posts with ID as key and title as value. */
+	protected static $postNames = null;
 	
 	protected $adminNotices = array();
 	
 	/** @var array Keep track of all checkboxes. In HTML forms they are not present on submit when unchecked. */
-	protected $allCheckboxes = array();
+	protected static $allCheckboxes = array();
+	/** @var array Keep track of all multi-select inputs. In HTML forms they are not present on submit no value is selected. */
+	protected static $allMultiselect = array();
 	
 	public function __construct(CTIP_Settings $settings) {
 		$this->settings = $settings;
@@ -133,9 +139,13 @@ class CTIP_TemplateEngine {
 	 * Echo constructed name attributes in form fields.
 	 *
 	 * @param string $name Field name base
+	 * @param boolean $echo Whether to escape echo or just return.
 	 */
-	public function fieldName( $name ) {
-		echo \esc_attr( $this->getFieldName( $name ) );
+	public function fieldName( $name, $echo = true  ) {
+		if ($echo)
+			echo \esc_attr( $this->getFieldName( $name ) );
+		else
+			return $this->getFieldName( $name );
 	}
 
 	/**
@@ -248,7 +258,7 @@ class CTIP_TemplateEngine {
 	 * @return string HTML checkbox output.
 	 */
 	public function makeCheckbox( $field_id = '', $label = '', $description = '', $escape = true, $disabled = false ) {
-		$this->allCheckboxes[$field_id] = true;
+		static::$allCheckboxes[$field_id] = true;
 		if ( $escape ) {
 			$description = \esc_html( $description );
 			$label = \esc_html( $label );
@@ -324,39 +334,108 @@ class CTIP_TemplateEngine {
 	 * @param string $label The checkbox description label.
 	 * @param string $description Addition description to place beneath the select.
 	 * @param array $options An associative array with option names (keys) and select display values.
+	 * @param array $selectOptions An associative array with options for this select item's behaviour. Supported Values:
+	 * 		multiselect (bool, default false)
+	 * 		class (string, default empty)
 	 * @param bool $escape Whether to escape the label.
 	 * @return string HTML text field output.
 	 */
-	public function makeSelect( $field_id = '', $label = '', $options = array(), $escape = true ) {
-		
+	public function makeSelect( $field_id = '', $label = '', $options = array(), $selectOptions = array(), $escape = true ) {
+		$selectOptionsDefaults = array(
+				'multiselect' => false,
+				'class' => '',
+		);
+		$selectOptions = wp_parse_args($selectOptions, $selectOptionsDefaults);
+		if ($selectOptions['multiselect'] === true)
+			static::$allMultiselect[$field_id] = true;
 		if ( $escape ) {
 			$label = \esc_html( $label );
 		}
 		
 		$select_options = '';
-		$selected = $this->getFieldValue($field_id);
+		$selectedAll = $this->getFieldValue($field_id);
+		if (is_array($selectedAll) === false)
+			$selectedAll = array($selectedAll); // to be compatible with multiselect (numeric array with select keys as values)
 		foreach ( $options as $value => $name ) {
 			$select_options .= vsprintf(
 				'<option value="%s" %s>%s</option>',
 				[
 					esc_attr( $value ),
-					selected( $selected, esc_attr( $value ), false ),
+					selected( $this->getSelectedValue($selectedAll, $value), esc_attr( $value ), false ),
 					esc_html( $name ),
 				]
 			);
 		}
 
+		$class = $selectOptions['class'];
+		if ($selectOptions['multiselect'] === true && strpos($class, 'multiselect') === false)
+			$class .= ' multiselect';
+		$class = trim($class);
 		$output = vsprintf(
 			'<label for="%1$s">%2$s</label>
-			<select name="%3$s" id="%1$s">%4$s</select>',
+			<select name="%3$s%7$s" id="%1$s"%5$s%6$s>%4$s</select>',
 			[
 				$this->getFieldId($field_id),
 				$label,
 				$this->getFieldName( $field_id ),
 				$select_options,
+				$selectOptions['multiselect'] === true ? ' multiple="multiple"' : '',
+				empty($class) ? '' : 'class="' . $class . '"',
+				$selectOptions['multiselect'] === true ? '[]' : '',
 			]
 		);
 		
+		return $output;
+	}
+	
+	/**
+	 * Return a HTML button.
+	 * @param string $field_id The field ID.
+	 * @param string $label The text to be shown on the button
+	 * @param string $description An optional description to explain what this button does.
+	 * @param array $buttonOptions An associative array with options for this select item's behaviour. Supported Values:
+	 * 		multiselect (bool, default false)
+	 * 		class (string, default empty)
+	 * 		tooltip (bool, default false)
+	 * @param boolean $escape Whether to escape the label and description.
+	 * @return string
+	 */
+	public function makeButton( $field_id = '', $label = '', $description = '', $buttonOptions = array(), $escape = true ) {
+		$buttonDefaults = array(
+				'disabled' => false,
+				'class' => '',
+				'tooltip' => false,
+		);
+		$buttonOptions = wp_parse_args($buttonOptions, $buttonDefaults);
+		if ( $escape ) {
+			$description = \esc_html( $description );
+			$label = \esc_html( $label );
+		}
+		$class = $buttonOptions['class'];
+		if (strpos($class, 'button') === false)
+			$class .= ' button';
+		if ($buttonOptions['disabled'] === true && strpos($class, 'disabled') === false)
+			$class .= ' disabled';
+		$class = trim($class);
+
+		$description_tooltip = '';
+		if ($buttonOptions['tooltip'] === true) {
+			$description_tooltip = '<span class="ct-tooltip-button">' . $this->makeInfo($description, '', false) . '</span>';
+			$description = '';
+		}
+		else
+			$description = $description ? '<p class="description ct-option-spacer">' . $description . '</p>' : '';
+
+		$output = '<p>'
+					. '<input type="button" name="' . $this->fieldName( $field_id , false) . '"'
+						. ' class="' . $class . '" id="' . $this->fieldId( $field_id, false ) . '"'
+						. ' value="' . $label . '"'
+					. ' />'
+				. $description_tooltip
+				. '</p>'
+				. $description
+				;
+
 		return $output;
 	}
 
@@ -535,8 +614,19 @@ class CTIP_TemplateEngine {
 	 */
 	public function getAllCheckboxes(bool $asString) { // TODO make this compatible with multi-level form fields, see getFieldName()
 		if ($asString === false)
-			return $this->allCheckboxes;
-		return implode(',', array_keys($this->allCheckboxes));
+			return static::$allCheckboxes;
+		return implode(',', array_keys(static::$allCheckboxes));
+	}
+	
+	/**
+	 * Return the names of all multi-select inputs in the current HTML form.
+	 * @param bool $asString
+	 * @return array|string
+	 */
+	public function getAllMultiselect(bool $asString) { // TODO make this compatible with multi-level form fields, see getFieldName()
+		if ($asString === false)
+			return static::$allMultiselect;
+		return implode(',', array_keys(static::$allMultiselect));
 	}
 	
 	public static function getDate(int $unixTimestamp, bool $echo = true) {
@@ -566,6 +656,31 @@ class CTIP_TemplateEngine {
 			static::$pageNames[$page->ID] = $page->post_title;
 		}
 		return static::$pageNames;
+	}
+	
+	public static function getPostNames(int $limit = 500): array {
+		if (static::$postNames !== null)
+			return static::$postNames;
+		static::$postNames = array();
+		$posts = get_posts(array('numberposts' => $limit)); // also has option for sorting etc, use default alphabetical by title
+		foreach ($posts as $post) {
+			static::$postNames[$post->ID] = $post->post_title;
+		}
+		return static::$postNames;
+	}
+	
+	/**
+	 * Helper function that returns the value of the selected value if it is part of $selectedAll. Returns empty string otherwise.
+	 * @param array $selectedAll
+	 * @param string $value
+	 * @return string
+	 */
+	protected function getSelectedValue(array $selectedAll, string $value): string {
+		foreach ($selectedAll as $selected) {
+			if ($selected === $value)
+				return $selected;
+		}
+		return "";
 	}
 }
 ?>

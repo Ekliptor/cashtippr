@@ -16,6 +16,6 @@
     "@types/jquery": "^2.0.46",
     "awesome-typescript-loader": "^5.0.0",
     "source-map-loader": "^0.2.3",
-    "typescript": "2.8.1"
+    "typescript": "3.7.2"
   }
 }

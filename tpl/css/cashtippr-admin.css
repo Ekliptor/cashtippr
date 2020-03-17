@@ -108,6 +108,10 @@ input.ct-disabled {
 a.ct-tooltip-item {
 	cursor: pointer;
 }
+.ct-tooltip-button {
+	margin-left: 3px;
+	margin-right: 3px;
+}
 
 .ct-tooltip {
 	position: absolute;
@@ -311,3 +315,34 @@ input.ct-warning-selected:checked:before {
 .ct-hidden {
 	display: none;
 }
+
+.wp-admin .ctip-multisel {
+	min-height: 17em;
+}
+
+.ct-slp-low-balance {
+	color: #f43e23;
+	font-weight: bold;
+}
+.ct-sending-txt {
+	margin-left: 10px;
+}
+pre#ct-distribution-log {
+    display: block;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.42857;
+    word-break: break-all;
+    word-wrap: break-word;
+    color: #333;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    
+    max-height: 120px;
+    overflow-x: auto;
+    overflow-y: scroll;
+    margin-top: 5px;
+}
+

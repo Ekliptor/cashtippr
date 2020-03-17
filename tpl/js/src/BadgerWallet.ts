@@ -14,8 +14,6 @@ export interface BadgerWalletPayment extends AbstractPayment {
 export class BadgerWallet extends AbstractModule {
     protected static readonly INSTALL_URL = "https://badger.bitcoin.com/";
 
-    protected cashtippr: CashTippr;
-    protected webHelpers: WebHelpers;
     protected globalCallbacks: boolean; // expose callback functions to window object because BadgerButton currently doesn't support functions on objects
 
     constructor(cashtippr: CashTippr, webHelpers: WebHelpers, globalCallbacks = false) {
@@ -47,6 +45,14 @@ export class BadgerWallet extends AbstractModule {
     public isLoggedIn() {
         const wnd: any = this.cashtippr.window;
         return typeof wnd.web4bch.bch.defaultAccount === "string" && wnd.web4bch.bch.defaultAccount !== "";
+    }
+
+    public getDefaultAddress(): string {
+        return (this.cashtippr.window as any).web4bch.bch.defaultAccount;
+    }
+
+    public getDefaultSlpAddress(): string {
+        return (this.cashtippr.window as any).web4bch.bch.defaultSlpAccount;
     }
 
     // ################################################################
